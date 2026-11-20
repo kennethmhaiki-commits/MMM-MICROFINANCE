@@ -1,0 +1,2790 @@
+<!DOCTYPE html>
+<html lang="sw" class="h-full bg-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MM MICROFINACE - Mfumo wa Mikopo</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            dark: '#0f172a',
+                            navy: '#1e293b',
+                            blue: '#0284c7',
+                            yellow: '#f59e0b'
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        /* Muundo maalum wa kuchapa (Print / Save as PDF) */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            body * {
+                visibility: hidden !important;
+            }
+            #printable-area, #printable-area *, #printable-contract, #printable-contract * {
+                visibility: visible !important;
+            }
+            #printable-area {
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 15px !important;
+                background: white !important;
+                box-shadow: none !important;
+                border: none !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            @page {
+                size: auto;
+                margin: 10mm;
+            }
+        }
+
+        /* Animations kwa Matangazo ya Dashboard na Login */
+        @keyframes marqueeScroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        @keyframes slideInOut {
+            0%, 100% { transform: translateX(0) scale(1); opacity: 1; }
+            50% { transform: translateX(10px) scale(0.985); opacity: 0.88; }
+        }
+        @keyframes bannerPulseMove {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+        @keyframes loginFadeDive {
+            0%, 100% { opacity: 1; transform: scale(1) translateY(0); }
+            50% { opacity: 0.35; transform: scale(0.95) translateY(5px); }
+        }
+        .animate-marquee-text {
+            display: inline-block;
+            white-space: nowrap;
+            animation: marqueeScroll 18s linear infinite;
+        }
+        .animate-marquee-text:hover {
+            animation-play-state: paused;
+        }
+        .animate-slide-in-out {
+            animation: slideInOut 3.5s ease-in-out infinite;
+        }
+        .animate-banner-bounce {
+            animation: bannerPulseMove 2.5s ease-in-out infinite;
+        }
+        .animate-login-dive {
+            animation: loginFadeDive 3s ease-in-out infinite;
+        }
+        #view-dashboard, #login-screen, #public-online-banner, #login-header-banner, #login-contact-box {
+            transition: background-color 0.8s ease-in-out, border-color 0.8s ease-in-out, color 0.8s ease-in-out;
+        }
+        #view-dashboard {
+            border-radius: 1rem;
+        }
+    </style>
+</head>
+<body class="h-full font-sans antialiased text-slate-800 bg-slate-100">
+
+    <!-- Kisanduku cha taarifa badala ya alert/confirm -->
+    <div id="toast-notification" class="fixed bottom-5 right-5 z-[100] hidden max-w-sm bg-slate-900 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-2xl border border-amber-400/50 flex items-center space-x-2.5">
+        <i class="fa-solid fa-circle-info text-amber-400 text-sm shrink-0"></i>
+        <span id="toast-message"></span>
+    </div>
+
+    <!-- ONLINE APPLICANTS TOP BANNER (PUBLIC ACCESS - INATEMBEA & KUBADILIKA RANGI) -->
+    <div id="public-online-banner" class="bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-slate-950 px-4 py-2 text-center shadow-sm relative z-50 no-print border-b border-amber-600/30 overflow-hidden">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-2 text-xs font-extrabold tracking-wide">
+            <div class="overflow-hidden max-w-full sm:max-w-xl">
+                <span class="flex items-center gap-1.5 animate-marquee-text">
+                    <i class="fa-solid fa-globe text-slate-900"></i>
+                    <span>★ UNAHITAJI MKOPO WA HARAKA KUTOKA MM MICROFINACE? TUMA OMBI LAKO MTANDAONI SASA! ★</span>
+                </span>
+            </div>
+            <button type="button" onclick="openPublicApplicationModal()" class="bg-slate-900 hover:bg-slate-800 text-amber-400 px-3.5 py-1 rounded-full text-[11px] font-black uppercase tracking-wider shadow transition-transform active:scale-95 cursor-pointer shrink-0 animate-login-dive">
+                WAOMBAJI WA MTANDAONI BONYEZA HAPA
+            </button>
+        </div>
+    </div>
+
+    <!-- LOGIN SCREEN MODAL -->
+    <div id="login-screen" class="fixed inset-0 top-9 bg-slate-900 z-40 flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200 my-auto">
+            <div id="login-header-banner" class="bg-gradient-to-r from-slate-900 via-sky-900 to-slate-900 p-7 text-center text-white relative overflow-hidden">
+                <div class="animate-login-dive">
+                    <div class="w-16 h-16 bg-amber-500 rounded-2xl mx-auto flex items-center justify-center text-slate-900 font-black text-2xl shadow-lg mb-3">
+                        MM
+                    </div>
+                    <h2 class="text-xl font-bold tracking-tight">MM MICROFINACE</h2>
+                    <p class="text-xs text-amber-400 font-medium uppercase tracking-wider mt-1">Wilaya ya Tandahimba • Mkopo Karibu Yako</p>
+                </div>
+                <div class="overflow-hidden w-full mt-3 pt-2 border-t border-white/10">
+                    <p class="text-[11px] font-bold text-amber-300 animate-marquee-text">
+                        ★ KARIBU MM MICROFINACE — HUDUMA BORA ZA MIKOPO YA HARAKA NA RIBA NAFUU WILAYANI TANDAHIMBA ★
+                    </p>
+                </div>
+            </div>
+            <form id="login-form" onsubmit="handleLogin(event)" class="p-6 space-y-4">
+                <div id="login-error" class="hidden bg-rose-50 border border-rose-200 text-rose-700 text-xs p-3 rounded-lg flex items-center space-x-2">
+                    <i class="fa-solid fa-triangle-exclamation text-rose-500"></i>
+                    <span>Jina la mtumiaji au neno la siri si sahihi!</span>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1 uppercase tracking-wider">Username</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-user absolute left-3 top-3 text-slate-400 text-xs"></i>
+                        <input type="text" id="login-username" required placeholder="Ingiza Username" class="w-full text-xs pl-9 pr-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1 uppercase tracking-wider">Password</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-lock absolute left-3 top-3 text-slate-400 text-xs"></i>
+                        <input type="password" id="login-password" required placeholder="Ingiza Password" class="w-full text-xs pl-9 pr-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 outline-none">
+                    </div>
+                </div>
+                <button type="submit" class="w-full py-3 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-lg shadow-md transition-all flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    <span>INGIA KWENYE MFUMO</span>
+                </button>
+
+                <!-- Taarifa za Mawasiliano & Anuani kwenye Login Interface -->
+                <div id="login-contact-box" class="bg-sky-50 border border-sky-200 rounded-xl p-3.5 text-center space-y-1.5 mt-3">
+                    <div class="text-[11px] font-extrabold text-sky-900 uppercase tracking-wide flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-location-dot text-amber-500"></i>
+                        <span id="login-company-address">Mtaa wa Amani, Tandahimba</span>
+                    </div>
+                    <p class="text-[11px] text-slate-700 font-semibold leading-relaxed">
+                        Kwa mawasiliano na maswali wasiliana na <a href="tel:0627583847" class="font-bold text-sky-700 hover:underline">0627583847</a> au <a href="tel:0628007659" class="font-bold text-sky-700 hover:underline">0628007659</a> au <a href="mailto:kennethmhaiki8@gmail.com" class="font-bold text-sky-700 hover:underline">kennethmhaiki8@gmail.com</a> au fika ofisini kwao <strong>Mtaa wa Amani, Tandahimba</strong>.
+                    </p>
+                </div>
+
+                <div class="text-center pt-1">
+                    <span class="text-[11px] text-slate-400">Mfumo Uliohifadhiwa kwa Usalama &copy; MM MICROFINACE</span>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN SYSTEM CONTAINER -->
+    <div id="app-container" class="hidden h-full flex flex-col md:flex-row overflow-hidden">
+
+        <!-- SIDEBAR NAVIGATION -->
+        <aside id="sidebar" class="w-full md:w-64 bg-slate-900 text-slate-300 flex-shrink-0 flex flex-col justify-between z-30 transition-all">
+            <div>
+                <!-- Company Branding Header -->
+                <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-sky-600 flex items-center justify-center text-slate-900 font-bold text-lg shadow-lg">
+                            MM
+                        </div>
+                        <div>
+                            <h1 class="font-bold text-white text-xs tracking-wide leading-tight">MM MICROFINACE</h1>
+                            <p class="text-[10px] text-amber-400 font-semibold tracking-wider uppercase">MICROFINANCE LTD</p>
+                        </div>
+                    </div>
+                    <button type="button" id="mobile-menu-toggle" onclick="toggleMobileNav()" class="md:hidden text-slate-400 hover:text-white p-2">
+                        <i class="fa-solid fa-bars text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Nav Links -->
+                <nav class="p-3 space-y-1 overflow-y-auto max-h-[calc(100vh-180px)]" id="nav-links">
+                    <a href="#" onclick="switchTab('dashboard'); return false;" id="nav-dashboard" class="nav-item flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold bg-sky-600 text-white">
+                        <i class="fa-solid fa-chart-pie w-5 text-center"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#" onclick="switchTab('clients'); return false;" id="nav-clients" class="nav-item flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-xs font-medium hover:bg-slate-800 hover:text-white text-slate-400">
+                        <i class="fa-solid fa-users w-5 text-center"></i>
+                        <span>Usajili & Wateja</span>
+                    </a>
+                    <a href="#" onclick="switchTab('online-requests'); return false;" id="nav-online-requests" class="nav-item flex items-center justify-between px-3.5 py-2.5 rounded-lg text-xs font-medium hover:bg-slate-800 hover:text-white text-slate-400">
+                        <div class="flex items-center space-x-3">
+                            <i class="fa-solid fa-inbox w-5 text-center text-amber-400"></i>
+                            <span>Maombi ya Mtandaoni</span>
+                        </div>
+                        <span id="nav-online-badge" class="hidden bg-amber-500 text-slate-950 text-[10px] font-black px-1.5 py-0.5 rounded-full">0</span>
+                    </a>
+                    <a href="#" onclick="switchTab('loans'); return false;" id="nav-loans" class="nav-item flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-xs font-medium hover:bg-slate-800 hover:text-white text-slate-400">
+                        <i class="fa-solid fa-hand-holding-dollar w-5 text-center"></i>
+                        <span>Utoaji Mikopo</span>
+                    </a>
+                    <a href="#" onclick="switchTab('calculator'); return false;" id="nav-calculator" class="nav-item flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-xs font-medium hover:bg-slate-800 hover:text-white text-slate-400">
+                        <i class="fa-solid fa-calculator w-5 text-center"></i>
+                        <span>Loan Calculator</span>
+                    </a>
+                    <a href="#" onclick="switchTab('schedules'); return false;" id="nav-schedules" class="nav-item flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-xs font-medium hover:bg-slate-800 hover:text-white text-slate-400">
+                        <i class="fa-solid fa-calendar-check w-5 text-center"></i>
+                        <span>Ratiba ya Kulipa</span>
+                    </a>
+                    <a href="#" onclick="switchTab('repayments'); return false;" id="nav-repayments" class="nav-item flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-xs font-medium hover:bg-slate-800 hover:text-white text-slate-400">
+                        <i class="fa-solid fa-receipt w-5 text-center"></i>
+                        <span>Marejesho & Risiti</span>
+                    </a>
+                    <a href="#" onclick="switchTab('analytics'); return false;" id="nav-analytics" class="nav-item flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-xs font-medium hover:bg-slate-800 hover:text-white text-slate-400">
+                        <i class="fa-solid fa-chart-line w-5 text-center"></i>
+                        <span>Mtaji & Riba Analytics</span>
+                    </a>
+                    <a href="#" onclick="switchTab('messaging'); return false;" id="nav-messaging" class="nav-item flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-xs font-medium hover:bg-slate-800 hover:text-white text-slate-400">
+                        <i class="fa-brands fa-whatsapp w-5 text-center text-emerald-400"></i>
+                        <span>Utumaji Ujumbe</span>
+                    </a>
+                    <a href="#" onclick="switchTab('contracts'); return false;" id="nav-contracts" class="nav-item flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-xs font-medium hover:bg-slate-800 hover:text-white text-slate-400">
+                        <i class="fa-solid fa-file-contract w-5 text-center"></i>
+                        <span>Mikataba Rasmi</span>
+                    </a>
+                    <a href="#" onclick="switchTab('company'); return false;" id="nav-company" class="nav-item flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-xs font-medium hover:bg-slate-800 hover:text-white text-slate-400">
+                        <i class="fa-solid fa-building w-5 text-center"></i>
+                        <span>Taarifa za Kampuni</span>
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Footer Admin Profile & Logout -->
+            <div class="p-4 border-t border-slate-800 bg-slate-950/60">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-xs text-slate-200 font-bold flex items-center">
+                            <i class="fa-solid fa-user-shield text-amber-400 mr-1.5 text-xs"></i>
+                            <span>Kennymhaiki</span>
+                        </div>
+                        <div class="text-[10px] text-slate-400">Afisa Mkuu / Admin</div>
+                    </div>
+                    <button type="button" onclick="handleLogout()" class="text-rose-400 hover:text-rose-300 p-2 rounded hover:bg-rose-950/40" title="Log Out">
+                        <i class="fa-solid fa-power-off text-sm"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+
+            <!-- TOP NAVIGATION HEADER -->
+            <header class="bg-white border-b border-slate-200 px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0 sticky top-0 z-20 shadow-xs">
+                <div>
+                    <h2 id="page-title" class="text-lg font-bold text-slate-900 tracking-tight">Dashboard ya Usimamizi</h2>
+                    <p id="page-subtitle" class="text-xs text-slate-500">MM MICROFINACE - Tandahimba</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+                    <button type="button" onclick="openPublicApplicationModal()" class="bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 text-xs font-extrabold px-3 py-2 rounded-lg flex items-center space-x-1.5 shadow-xs">
+                        <i class="fa-solid fa-globe text-amber-600"></i>
+                        <span>WAOMBAJI WA MTANDAONI BONYEZA HAPA</span>
+                    </button>
+                    <button type="button" onclick="prepareNewClientModal()" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-3.5 py-2 rounded-lg flex items-center space-x-1.5 shadow-sm">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span>Sajili Mteja</span>
+                    </button>
+                    <button type="button" onclick="openModal('modal-issue-loan')" class="bg-amber-500 hover:bg-amber-600 text-slate-900 text-xs font-bold px-3.5 py-2 rounded-lg flex items-center space-x-1.5 shadow-sm">
+                        <i class="fa-solid fa-plus-circle"></i>
+                        <span>Kutoa Mkopo</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- DYNAMIC VIEWS WRAPPER -->
+            <div class="p-4 md:p-6 space-y-6 flex-1">
+
+                <!-- VIEW 1: DASHBOARD -->
+                <section id="view-dashboard" class="view-content space-y-6 p-3 sm:p-4 transition-colors duration-700 bg-sky-50/70">
+                    <!-- Online Applicants Quick Notice Banner on Dashboard -->
+                    <div id="dash-promo-banner" class="bg-gradient-to-r from-slate-900 via-sky-950 to-slate-900 rounded-xl p-4 text-white flex flex-col sm:flex-row items-center justify-between gap-3 border border-sky-800 shadow-md overflow-hidden animate-banner-bounce transition-all duration-700">
+                        <div class="flex items-center space-x-3 overflow-hidden w-full">
+                            <div class="w-10 h-10 rounded-full bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-400 shrink-0">
+                                <i class="fa-solid fa-laptop-file text-lg"></i>
+                            </div>
+                            <div class="overflow-hidden w-full">
+                                <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider">Mfumo wa Maombi ya Mtandaoni (Online Portal)</h4>
+                                <div class="overflow-hidden w-full mt-0.5">
+                                    <p class="text-xs text-slate-200 font-medium animate-marquee-text">
+                                        ★ KARIBU MM MICROFINACE - MKOPO KARIBU YAKO! Wateja wanaweza kutuma maombi ya mikopo moja kwa moja mtandaoni na yakapokelewa papo hapo! ★
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <button type="button" onclick="openPublicApplicationModal()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black px-3.5 py-2 rounded-lg shadow">
+                                WAOMBAJI WA MTANDAONI BONYEZA HAPA
+                            </button>
+                            <button type="button" onclick="switchTab('online-requests')" class="bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 text-xs font-bold px-3 py-2 rounded-lg">
+                                Maombi (<span id="dash-online-count">0</span>)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- KPI Cards Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
+                            <div class="flex justify-between items-center text-slate-500">
+                                <span class="text-xs font-bold uppercase tracking-wider">Jumla ya Mtaji Uliotolewa</span>
+                                <span class="w-8 h-8 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center"><i class="fa-solid fa-hand-holding-dollar"></i></span>
+                            </div>
+                            <div id="dash-total-principal" class="text-xl font-black text-slate-900 mt-2">Tsh 0</div>
+                            <p class="text-[11px] text-slate-400 mt-1">Mtaji wote wa mikopo</p>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
+                            <div class="flex justify-between items-center text-slate-500">
+                                <span class="text-xs font-bold uppercase tracking-wider">Jumla ya Riba Tarajiwa</span>
+                                <span class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center"><i class="fa-solid fa-percent"></i></span>
+                            </div>
+                            <div id="dash-total-interest" class="text-xl font-black text-amber-600 mt-2">Tsh 0</div>
+                            <p class="text-[11px] text-slate-400 mt-1">Faida iliyokokotolewa</p>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
+                            <div class="flex justify-between items-center text-slate-500">
+                                <span class="text-xs font-bold uppercase tracking-wider">Fedha Zilizorejeshwa</span>
+                                <span class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center"><i class="fa-solid fa-circle-check"></i></span>
+                            </div>
+                            <div id="dash-total-collected" class="text-xl font-black text-emerald-600 mt-2">Tsh 0</div>
+                            <p class="text-[11px] text-slate-400 mt-1">Mtaji + Riba zilizorudi</p>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
+                            <div class="flex justify-between items-center text-slate-500">
+                                <span class="text-xs font-bold uppercase tracking-wider">Salio Linalodaiwa</span>
+                                <span class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center"><i class="fa-solid fa-clock-rotate-left"></i></span>
+                            </div>
+                            <div id="dash-total-balance" class="text-xl font-black text-rose-600 mt-2">Tsh 0</div>
+                            <p class="text-[11px] text-slate-400 mt-1">Bado kukusanywa kikamilifu</p>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard Main Grid -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Due This Week Summary -->
+                        <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-5 shadow-xs space-y-4">
+                            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                                <div>
+                                    <h3 class="font-bold text-slate-900 text-sm">Marejesho Yanayotakiwa Wiki Hii</h3>
+                                    <p class="text-xs text-slate-500">Wateja wanaopaswa kurejesha ndani ya siku 7 zijazo</p>
+                                </div>
+                                <button type="button" onclick="switchTab('schedules')" class="text-xs font-bold text-sky-600 hover:underline">Tazama Yote</button>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs">
+                                    <thead>
+                                        <tr class="bg-slate-50 text-slate-500 uppercase font-semibold border-b border-slate-200">
+                                            <th class="p-3">Mteja</th>
+                                            <th class="p-3">Tarehe ya Kulipa</th>
+                                            <th class="p-3">Rejesho (Tsh)</th>
+                                            <th class="p-3">Simu / WhatsApp</th>
+                                            <th class="p-3 text-right">Hatua</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dash-due-weekly-tbody" class="divide-y divide-slate-100">
+                                        <!-- Dynamic Content -->
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Ujumbe wa Mawasiliano & Anuani ya Ofisi kwenye Dashboard -->
+                            <div id="dash-contact-marquee-box" class="bg-sky-50 border border-sky-200 rounded-xl p-4 mt-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 transition-colors duration-700">
+                                <div class="w-10 h-10 rounded-full bg-sky-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                                    <i class="fa-solid fa-headset text-base"></i>
+                                </div>
+                                <div class="text-xs text-slate-700 leading-relaxed w-full">
+                                    <div class="font-extrabold text-sky-900 uppercase tracking-wide mb-0.5">Mawasiliano & Huduma kwa Wateja</div>
+                                    <p class="font-semibold text-slate-800 leading-relaxed">
+                                        Kwa mawasiliano na maswali wasiliana na <a href="tel:0627583847" class="font-bold text-sky-700 hover:underline">0627583847</a> au <a href="tel:0628007659" class="font-bold text-sky-700 hover:underline">0628007659</a> au <a href="mailto:kennethmhaiki8@gmail.com" class="font-bold text-sky-700 hover:underline">kennethmhaiki8@gmail.com</a> au fika ofisini kwao <strong>Mtaa wa Amani, Tandahimba</strong>.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Company Info & Quick Actions -->
+                        <div class="space-y-6">
+                            <div id="dash-company-card" class="bg-slate-900 text-white rounded-xl p-5 shadow-md relative overflow-hidden animate-slide-in-out transition-colors duration-700">
+                                <div class="absolute -right-4 -bottom-4 text-7xl text-slate-800 opacity-40">
+                                    <i class="fa-solid fa-building-columns"></i>
+                                </div>
+                                <h4 class="text-[11px] font-bold text-amber-400 uppercase tracking-widest mb-1">MM MICROFINACE</h4>
+                                <h3 class="text-base font-bold text-white" id="dash-company-name">MM MICROFINACE</h3>
+                                <div class="mt-4 space-y-2 text-xs border-t border-slate-800 pt-3 text-slate-300">
+                                    <div class="flex justify-between gap-2">
+                                        <span class="text-slate-400">Anuani / Mtaa:</span>
+                                        <strong id="dash-company-address" class="text-slate-100 text-right">Mtaa wa Amani, Tandahimba</strong>
+                                    </div>
+                                    <div class="flex justify-between gap-2">
+                                        <span class="text-slate-400">Simu za Ofisi:</span>
+                                        <strong id="dash-company-phone" class="text-emerald-400 font-mono text-right">0627583847 / 0628007659</strong>
+                                    </div>
+                                    <div class="flex justify-between gap-2">
+                                        <span class="text-slate-400">Barua Pepe:</span>
+                                        <strong id="dash-company-email" class="text-sky-300 text-right break-all">kennethmhaiki8@gmail.com</strong>
+                                    </div>
+                                    <div class="flex justify-between gap-2">
+                                        <span class="text-slate-400">Mkopeshaji:</span>
+                                        <strong id="dash-company-lender" class="text-slate-100 text-right">Mwanaharusi Said Mzee</strong>
+                                    </div>
+                                    <div class="flex justify-between gap-2">
+                                        <span class="text-slate-400">Shahidi wa Mkopeshaji:</span>
+                                        <strong id="dash-company-witness" class="text-slate-100 text-right">Kenneth Mhaiki</strong>
+                                    </div>
+                                    <div class="flex justify-between gap-2">
+                                        <span class="text-slate-400">Adhabu ya Chelewesho:</span>
+                                        <strong id="dash-company-penalty" class="text-amber-400">5%</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-xl border border-slate-200 p-4 space-y-2">
+                                <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Njia za Mkato</h4>
+                                <button type="button" onclick="openModal('modal-add-repayment')" class="w-full flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/40 transition text-xs font-semibold text-slate-800">
+                                    <span class="flex items-center space-x-2">
+                                        <i class="fa-solid fa-money-bill-wave text-emerald-600"></i>
+                                        <span>Weka Marejesho / Risiti</span>
+                                    </span>
+                                    <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+                                </button>
+                                <button type="button" onclick="switchTab('calculator')" class="w-full flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-sky-500 hover:bg-sky-50/40 transition text-xs font-semibold text-slate-800">
+                                    <span class="flex items-center space-x-2">
+                                        <i class="fa-solid fa-calculator text-sky-600"></i>
+                                        <span>Loan Calculator</span>
+                                    </span>
+                                    <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 2: CLIENT MANAGEMENT -->
+                <section id="view-clients" class="view-content hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div class="relative w-full sm:w-80">
+                            <i class="fa-solid fa-search absolute left-3 top-3 text-slate-400 text-xs"></i>
+                            <input type="text" id="client-search" oninput="renderClientsTable()" placeholder="Tafuta mteja kwa jina, simu au NIDA..." class="w-full pl-9 pr-4 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 outline-none">
+                        </div>
+                        <button type="button" onclick="prepareNewClientModal()" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-4 py-2.5 rounded-lg flex items-center space-x-2 shadow-sm">
+                            <i class="fa-solid fa-user-plus"></i>
+                            <span>Sajili Mteja Mpya</span>
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead>
+                                    <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase font-semibold">
+                                        <th class="p-4">Mteja / Kitambulisho</th>
+                                        <th class="p-4">Simu (WhatsApp)</th>
+                                        <th class="p-4">Mtaa & Wilaya</th>
+                                        <th class="p-4">Mali ya Dhamana</th>
+                                        <th class="p-4">Mdhamini & Simu</th>
+                                        <th class="p-4 text-center">Mikopo</th>
+                                        <th class="p-4 text-right">Vitendo / Hatua</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="clients-table-body" class="divide-y divide-slate-100">
+                                    <!-- Dynamic Rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 2B: ONLINE LOAN APPLICATIONS MODULE -->
+                <section id="view-online-requests" class="view-content hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-900">Maombi ya Mikopo Yaliyotumwa Mtandaoni</h3>
+                            <p class="text-xs text-slate-500">Kagua maombi mapya kutoka kwa wateja, idhinisha kuwa mkopo rasmi au kataa</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="openPublicApplicationModal()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold px-3.5 py-2 rounded-lg flex items-center space-x-1.5 shadow-sm">
+                                <i class="fa-solid fa-up-right-from-square"></i>
+                                <span>Fungua Fomu ya Waombaji</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead>
+                                    <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase font-semibold">
+                                        <th class="p-4">Tarehe / ID</th>
+                                        <th class="p-4">Mwombaji & Simu</th>
+                                        <th class="p-4">Makazi & NIDA</th>
+                                        <th class="p-4">Mkopo Unaohitajika</th>
+                                        <th class="p-4">Dhamana & Mdhamini</th>
+                                        <th class="p-4">Hali</th>
+                                        <th class="p-4 text-right">Hatua ya Afisa</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="online-requests-tbody" class="divide-y divide-slate-100">
+                                    <!-- Dynamic Online Applications -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 3: LOANS MANAGEMENT -->
+                <section id="view-loans" class="view-content hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <select id="loan-filter-status" onchange="renderLoansTable()" class="text-xs border border-slate-300 rounded-lg px-3 py-2 bg-white outline-none">
+                                <option value="ALL">Hali Zote za Mikopo</option>
+                                <option value="ACTIVE">Inayoendelea (Active)</option>
+                                <option value="COMPLETED">Iliyomalizika (Completed)</option>
+                            </select>
+                            <input type="text" id="loan-search" oninput="renderLoansTable()" placeholder="Tafuta mkopo..." class="text-xs border border-slate-300 rounded-lg px-3 py-2 bg-white outline-none">
+                        </div>
+                        <button type="button" onclick="openModal('modal-issue-loan')" class="bg-amber-500 hover:bg-amber-600 text-slate-900 text-xs font-bold px-4 py-2.5 rounded-lg flex items-center space-x-2 shadow-sm">
+                            <i class="fa-solid fa-plus-circle"></i>
+                            <span>Kutoa Mkopo Mpya</span>
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead>
+                                    <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase font-semibold">
+                                        <th class="p-4">ID ya Mkopo</th>
+                                        <th class="p-4">Mkopaji</th>
+                                        <th class="p-4">Aina ya Mkopo</th>
+                                        <th class="p-4">Mtaji & Riba</th>
+                                        <th class="p-4">Tarehe (Anza - Isha)</th>
+                                        <th class="p-4">Salio Lililobaki</th>
+                                        <th class="p-4">Hali</th>
+                                        <th class="p-4 text-right">Vitendo</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="loans-table-body" class="divide-y divide-slate-100">
+                                    <!-- Dynamic Content -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 4: LOAN CALCULATOR -->
+                <section id="view-calculator" class="view-content hidden space-y-6">
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-xs max-w-4xl mx-auto space-y-6">
+                        <div class="border-b border-slate-100 pb-4">
+                            <h3 class="text-base font-bold text-slate-900">Kikokotoo cha Mikopo (Loan Calculator)</h3>
+                            <p class="text-xs text-slate-500">Jaribu mahesabu ya mtaji, riba, faini na marejesho kabla ya kutoa mkopo rasmi</p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Kiasi cha Mtaji (Tsh)</label>
+                                <input type="number" id="calc-amount" value="500000" oninput="runStandaloneCalculator()" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Asilimia ya Riba (%)</label>
+                                <input type="number" id="calc-rate" value="20" oninput="runStandaloneCalculator()" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Aina ya Riba</label>
+                                <select id="calc-mode" onchange="runStandaloneCalculator()" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none bg-white">
+                                    <option value="FLAT">Flat Rate (Riba ya Kawaida)</option>
+                                    <option value="REDUCING">Reducing Balance</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Muda wa Mkopo</label>
+                                <input type="number" id="calc-duration" value="3" oninput="runStandaloneCalculator()" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Mzunguko wa Makato</label>
+                                <select id="calc-period" onchange="runStandaloneCalculator()" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none bg-white">
+                                    <option value="MWEZI">Mwezi (Monthly)</option>
+                                    <option value="WIKI">Wiki (Weekly)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Adhabu/Faini ya Chelewesho (%)</label>
+                                <input type="number" id="calc-penalty" value="5" oninput="runStandaloneCalculator()" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                            </div>
+                        </div>
+
+                        <!-- Calc Results Box -->
+                        <div class="bg-slate-900 text-white p-5 rounded-xl space-y-3">
+                            <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider">Matokeo ya Mahesabu</h4>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
+                                <div>
+                                    <span class="text-slate-400 block">Jumla ya Riba:</span>
+                                    <strong id="res-calc-interest" class="text-amber-400 text-sm">Tsh 0</strong>
+                                </div>
+                                <div>
+                                    <span class="text-slate-400 block">Jumla ya Marejesho:</span>
+                                    <strong id="res-calc-total" class="text-white text-sm">Tsh 0</strong>
+                                </div>
+                                <div>
+                                    <span class="text-slate-400 block">Rejesho kwa Awamu:</span>
+                                    <strong id="res-calc-installment" class="text-emerald-400 text-sm">Tsh 0</strong>
+                                </div>
+                                <div>
+                                    <span class="text-slate-400 block">Faini ya Chelewesho:</span>
+                                    <strong id="res-calc-penalty-val" class="text-rose-400 text-sm">Tsh 0</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Schedule Table -->
+                        <div class="space-y-2">
+                            <h4 class="text-xs font-bold text-slate-700">Mchanganuo wa Awamu kwa Awamu</h4>
+                            <div class="border border-slate-200 rounded-lg overflow-hidden">
+                                <table class="w-full text-left text-xs">
+                                    <thead class="bg-slate-50 font-semibold text-slate-600 border-b border-slate-200">
+                                        <tr>
+                                            <th class="p-2.5">Awamu</th>
+                                            <th class="p-2.5">Mtaji</th>
+                                            <th class="p-2.5">Riba</th>
+                                            <th class="p-2.5 text-right">Jumla ya Rejesho</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="calc-schedule-tbody" class="divide-y divide-slate-100">
+                                        <!-- Dynamic calc rows -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 5: SCHEDULES & DUE LOANS -->
+                <section id="view-schedules" class="view-content hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-900">Ratiba ya Wateja Wanaotakiwa Kulipa</h3>
+                            <p class="text-xs text-slate-500">Tenganisha ratiba kulingana na wiki husika au mwezi husika</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button type="button" onclick="filterScheduleView('WEEK')" id="btn-sched-week" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-sky-600 text-white">Wiki Hii</button>
+                            <button type="button" onclick="filterScheduleView('MONTH')" id="btn-sched-month" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300">Mwezi Huu</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead>
+                                    <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase font-semibold">
+                                        <th class="p-4">Tarehe ya Kulipa</th>
+                                        <th class="p-4">Mteja / Mkopaji</th>
+                                        <th class="p-4">Simu (WhatsApp)</th>
+                                        <th class="p-4">ID ya Mkopo</th>
+                                        <th class="p-4 text-right">Kiasi Anachotakiwa Kulipa</th>
+                                        <th class="p-4 text-center">Tuma Ujumbe</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="schedules-table-body" class="divide-y divide-slate-100">
+                                    <!-- Dynamic Schedule Entries -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 6: REPAYMENTS & RECEIPTS -->
+                <section id="view-repayments" class="view-content hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-900">Orodha ya Marejesho na Risiti</h3>
+                            <p class="text-xs text-slate-500">Rekodi malipo, toa risiti rasmi, na fuatilia njia za malipo</p>
+                        </div>
+                        <button type="button" onclick="openModal('modal-add-repayment')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-lg flex items-center space-x-2 shadow-sm">
+                            <i class="fa-solid fa-receipt"></i>
+                            <span>Rekodi Malipo Mpya</span>
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead>
+                                    <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase font-semibold">
+                                        <th class="p-4">Tarehe</th>
+                                        <th class="p-4">Mteja</th>
+                                        <th class="p-4">Njia ya Malipo</th>
+                                        <th class="p-4">Mtaji Aliolipa</th>
+                                        <th class="p-4">Riba Aliyolipa</th>
+                                        <th class="p-4 font-bold text-slate-900">Jumla Aliyolipa</th>
+                                        <th class="p-4 text-right">Kitendo</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="repayments-table-body" class="divide-y divide-slate-100">
+                                    <!-- Dynamic Repayment Rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 7: MTAJI & RIBA ANALYTICS -->
+                <section id="view-analytics" class="view-content hidden space-y-6">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900">Mchanganuo wa Makusanyo (Mtaji & Riba)</h3>
+                        <p class="text-xs text-slate-500">Ripoti za kiutendaji zilizotenganishwa kwa Siku, Wiki, Mwezi na Mwaka</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+                            <span class="text-xs text-slate-500 font-bold uppercase">Makusanyo ya Leo (Siku)</span>
+                            <div id="stat-daily-total" class="text-lg font-black text-slate-900 mt-1">Tsh 0</div>
+                            <div class="text-[11px] text-slate-400 flex justify-between mt-1">
+                                <span>Mtaji: <strong id="stat-daily-p">0</strong></span>
+                                <span>Riba: <strong id="stat-daily-i" class="text-amber-600">0</strong></span>
+                            </div>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+                            <span class="text-xs text-slate-500 font-bold uppercase">Makusanyo ya Wiki Hii</span>
+                            <div id="stat-weekly-total" class="text-lg font-black text-slate-900 mt-1">Tsh 0</div>
+                            <div class="text-[11px] text-slate-400 flex justify-between mt-1">
+                                <span>Mtaji: <strong id="stat-weekly-p">0</strong></span>
+                                <span>Riba: <strong id="stat-weekly-i" class="text-amber-600">0</strong></span>
+                            </div>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+                            <span class="text-xs text-slate-500 font-bold uppercase">Makusanyo ya Mwezi Huu</span>
+                            <div id="stat-monthly-total" class="text-lg font-black text-slate-900 mt-1">Tsh 0</div>
+                            <div class="text-[11px] text-slate-400 flex justify-between mt-1">
+                                <span>Mtaji: <strong id="stat-monthly-p">0</strong></span>
+                                <span>Riba: <strong id="stat-monthly-i" class="text-amber-600">0</strong></span>
+                            </div>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+                            <span class="text-xs text-slate-500 font-bold uppercase">Makusanyo ya Mwaka Huu</span>
+                            <div id="stat-yearly-total" class="text-lg font-black text-slate-900 mt-1">Tsh 0</div>
+                            <div class="text-[11px] text-slate-400 flex justify-between mt-1">
+                                <span>Mtaji: <strong id="stat-yearly-p">0</strong></span>
+                                <span>Riba: <strong id="stat-yearly-i" class="text-amber-600">0</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 8: MESSAGING & WHATSAPP -->
+                <section id="view-messaging" class="view-content hidden space-y-6">
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-xs max-w-3xl mx-auto space-y-5">
+                        <div class="border-b border-slate-100 pb-3">
+                            <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+                                <i class="fa-brands fa-whatsapp text-emerald-500 text-lg"></i>
+                                <span>Utumaji Ujumbe kwa Wateja (WhatsApp / SMS)</span>
+                            </h3>
+                            <p class="text-xs text-slate-500">Chagua mteja ili kuunda kiotomatiki ujumbe wa salio, kiasi alicholipa na tarehe ya rejesho</p>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Chagua Mteja / Mkopo *</label>
+                                <select id="msg-client-loan-select" onchange="generateAutomatedMessage()" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none bg-white">
+                                    <!-- Dynamic loans/clients -->
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Kiolezo cha Ujumbe (Message Preview)</label>
+                                <textarea id="msg-text-area" rows="6" class="w-full text-xs p-3 border border-slate-300 rounded-lg outline-none font-mono bg-slate-50 text-slate-800"></textarea>
+                            </div>
+
+                            <div class="flex items-center space-x-3 pt-2">
+                                <button type="button" onclick="sendDirectWhatsApp()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-3 rounded-lg flex items-center justify-center space-x-2 shadow-sm">
+                                    <i class="fa-brands fa-whatsapp text-base"></i>
+                                    <span>TUMA DIRECT WHATSAPP</span>
+                                </button>
+                                <button type="button" onclick="sendDirectSMS()" class="flex-1 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs py-3 rounded-lg flex items-center justify-center space-x-2 shadow-sm">
+                                    <i class="fa-solid fa-comment-sms text-base"></i>
+                                    <span>TUMA KAMA SMS</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 9: CONTRACT GENERATOR -->
+                <section id="view-contracts" class="view-content hidden space-y-6">
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs flex flex-col md:flex-row justify-between items-start md:items-center gap-4 no-print">
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-sm">Zalisha Mkataba Rasmi wa Tandahimba</h3>
+                            <p class="text-xs text-slate-500">Mkataba wenye masharti kamili ya kisheria, muhuri wa kampuni na nafasi za saini</p>
+                        </div>
+                        <div class="flex items-center space-x-3 w-full md:w-auto">
+                            <select id="contract-loan-select" onchange="renderContractDocument()" class="w-full md:w-72 text-xs border border-slate-300 rounded-lg px-3 py-2 bg-white outline-none">
+                                <!-- Dynamic Loans -->
+                            </select>
+                            <button type="button" onclick="printLegalDocument('printable-contract')" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2 rounded-lg flex items-center space-x-2 shrink-0">
+                                <i class="fa-solid fa-print"></i>
+                                <span>Chapa Mkataba</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- CONTRACT PRINT CONTAINER -->
+                    <div id="printable-contract" class="printable-area bg-white p-8 md:p-12 rounded-xl border border-slate-300 shadow-md max-w-4xl mx-auto text-slate-900 text-xs leading-relaxed">
+                        <!-- Dynamic legal text rendered here -->
+                    </div>
+                </section>
+
+                <!-- VIEW 10: COMPANY SETTINGS -->
+                <section id="view-company" class="view-content hidden space-y-6">
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-xs max-w-3xl mx-auto">
+                        <div class="border-b border-slate-100 pb-3 mb-4">
+                            <h3 class="text-base font-bold text-slate-900">Taarifa za Kampuni & Uongozi</h3>
+                            <p class="text-xs text-slate-500">Badilisha taarifa zinazoonekana kwenye mikataba, risiti na vichwa vya habari</p>
+                        </div>
+                        <form id="form-company-settings" onsubmit="handleSaveCompany(event)" class="space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Jina la Taasisi / Kampuni *</label>
+                                    <input type="text" id="setting-company-name" required class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Wilaya *</label>
+                                    <input type="text" id="setting-district" required class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Anuani / Mtaa wa Ofisi *</label>
+                                    <input type="text" id="setting-address" required class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Barua Pepe (Email) *</label>
+                                    <input type="email" id="setting-email" required class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Jina la Mkopeshaji *</label>
+                                    <input type="text" id="setting-lender" required class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Shahidi wa Mkopeshaji *</label>
+                                    <input type="text" id="setting-witness" required class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Namba ya Simu *</label>
+                                    <input type="text" id="setting-phone" required class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Riba ya Default (%) *</label>
+                                    <input type="number" id="setting-default-rate" required class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Adhabu/Faini (%) *</label>
+                                    <input type="number" id="setting-penalty-rate" required class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                                </div>
+                            </div>
+                            <div class="pt-3 border-t border-slate-100 flex justify-end">
+                                <button type="submit" class="px-5 py-2.5 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-lg shadow-sm">
+                                    Hifadhi Taarifa za Kampuni
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- ================= MODALS SECTION ================= -->
+
+    <!-- MODAL 1: ADD / EDIT CLIENT -->
+    <div id="modal-add-client" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <h3 id="modal-client-title" class="font-bold text-slate-800 text-sm">Usajili wa Mteja Mpya</h3>
+                <button type="button" onclick="closeModal('modal-add-client')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="form-add-client" onsubmit="handleSaveClient(event)" class="p-6 space-y-4 overflow-y-auto">
+                <input type="hidden" id="edit-client-id">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Jina Kamili la Mkopaji *</label>
+                    <input type="text" id="client-name" required placeholder="Mfano: Lagatoni Mwampamba" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Namba ya Simu (WhatsApp) *</label>
+                        <input type="text" id="client-phone" required placeholder="2557XXXXXXXX" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Kitambulisho (NIDA/Mpiga Kura) *</label>
+                        <input type="text" id="client-nida" required placeholder="NIDA au Namba ya Kura" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Mtaa Anapoishi *</label>
+                        <input type="text" id="client-street" required placeholder="Mfano: Majengo" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Wilaya *</label>
+                        <input type="text" id="client-district" required value="Tandahimba" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Mali iliyowekwa Dhamana *</label>
+                    <input type="text" id="client-collateral" required placeholder="Mfano: Pikipiki Boxer MC-293, Shamba la Korosho" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                </div>
+
+                <div class="border-t border-slate-100 pt-3">
+                    <h4 class="text-xs font-bold text-sky-700 uppercase tracking-wider mb-2">Taarifa za Mdhamini</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Jina la Mdhamini *</label>
+                            <input type="text" id="guarantor-name" required placeholder="Jina la Mdhamini" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Simu ya Mdhamini *</label>
+                            <input type="text" id="guarantor-phone" required placeholder="2557XXXXXXXX" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Mtaa wa Mdhamini *</label>
+                            <input type="text" id="guarantor-street" required placeholder="Mtaa anapoishi" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Wilaya ya Mdhamini *</label>
+                            <input type="text" id="guarantor-district" required value="Tandahimba" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                        </div>
+                    </div>
+                </div>
+                <div class="pt-4 border-t border-slate-100 flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal('modal-add-client')" class="px-4 py-2 text-xs text-slate-600 hover:bg-slate-100 rounded-lg">Ghairi</button>
+                    <button type="submit" class="px-5 py-2 text-xs font-bold text-white bg-sky-600 hover:bg-sky-700 rounded-lg shadow-sm">Hifadhi Mteja</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: ISSUE LOAN -->
+    <div id="modal-issue-loan" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <h3 class="font-bold text-slate-800 text-sm">Form ya Kutoa Mkopo Mpya</h3>
+                <button type="button" onclick="closeModal('modal-issue-loan')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="form-issue-loan" onsubmit="handleSaveLoan(event)" class="p-6 space-y-4 overflow-y-auto">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Mkopaji (Chagua Mteja) *</label>
+                        <select id="loan-client-id" required class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none bg-white">
+                            <!-- Dynamic Clients -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Aina ya Mkopo *</label>
+                        <select id="loan-category" required class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none bg-white">
+                            <option value="Mkopo wa Biashara Ndogo">Mkopo wa Biashara Ndogo</option>
+                            <option value="Mkopo wa Dharura">Mkopo wa Dharura</option>
+                            <option value="Mkopo wa Kilimo">Mkopo wa Kilimo</option>
+                            <option value="Mkopo wa Ada">Mkopo wa Ada</option>
+                            <option value="Mkopo Binafsi">Mkopo Binafsi</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Kiasi cha Mtaji (Tsh) *</label>
+                        <input type="number" id="loan-amount" min="50000" step="10000" required oninput="calculateFormSchedulePreview()" placeholder="Mfano: 500000" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Riba (%) *</label>
+                        <input type="number" id="loan-interest" min="0" value="20" required oninput="calculateFormSchedulePreview()" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Aina ya Riba *</label>
+                        <select id="loan-calc-mode" onchange="calculateFormSchedulePreview()" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none bg-white">
+                            <option value="FLAT">Flat Rate (Kawaida)</option>
+                            <option value="REDUCING">Reducing Balance</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Muda *</label>
+                        <input type="number" id="loan-duration" min="1" value="3" required oninput="calculateFormSchedulePreview()" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Makato *</label>
+                        <select id="loan-period-type" onchange="calculateFormSchedulePreview()" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none bg-white">
+                            <option value="MWEZI">Mwezi (Monthly)</option>
+                            <option value="WIKI">Wiki (Weekly)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Tarehe ya Kutoa Mkopo *</label>
+                        <input type="date" id="loan-start-date" required onchange="calculateFormSchedulePreview()" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                    </div>
+                </div>
+
+                <!-- Preview Table Box -->
+                <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                    <div class="flex justify-between items-center text-xs font-bold mb-2">
+                        <span>Ratiba & Tarehe ya Kuisha (Due Date)</span>
+                        <span id="loan-form-end-date" class="text-sky-700">Kuisha: -</span>
+                    </div>
+                    <div class="max-h-32 overflow-y-auto">
+                        <table class="w-full text-left text-[11px]">
+                            <thead class="text-slate-500 border-b border-slate-200">
+                                <tr>
+                                    <th class="py-1">Awamu</th>
+                                    <th class="py-1">Tarehe</th>
+                                    <th class="py-1">Mtaji</th>
+                                    <th class="py-1">Riba</th>
+                                    <th class="py-1 text-right">Rejesho</th>
+                                </tr>
+                            </thead>
+                            <tbody id="loan-form-schedule-tbody" class="divide-y divide-slate-200/60">
+                                <!-- Dynamic Preview -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-slate-100 flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal('modal-issue-loan')" class="px-4 py-2 text-xs text-slate-600 hover:bg-slate-100 rounded-lg">Ghairi</button>
+                    <button type="submit" class="px-5 py-2 text-xs font-bold text-slate-900 bg-amber-500 hover:bg-amber-600 rounded-lg shadow-sm">Idhinisha & Toa Mkopo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 3: REPAYMENT & RECEIPT GENERATOR -->
+    <div id="modal-add-repayment" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <h3 class="font-bold text-slate-800 text-sm">Rekodi Marejesho ya Mkopo</h3>
+                <button type="button" onclick="closeModal('modal-add-repayment')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="form-add-repayment" onsubmit="handleSaveRepayment(event)" class="p-6 space-y-4 overflow-y-auto">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Chagua Mkopo *</label>
+                    <select id="repay-loan-id" required onchange="updateRepaymentCalcDetails()" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none bg-white">
+                        <!-- Dynamic loans -->
+                    </select>
+                </div>
+
+                <div id="repay-info-card" class="hidden bg-sky-50 p-3 rounded-lg border border-sky-200 text-xs space-y-1">
+                    <div class="flex justify-between"><span class="text-slate-500">Mkopaji:</span><strong id="repay-client-name" class="text-slate-900">-</strong></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Salio Linalodaiwa:</span><strong id="repay-balance-due" class="text-rose-600 font-bold">-</strong></div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Kiasi Anacholipa (Tsh) *</label>
+                        <input type="number" id="repay-amount" min="1000" required class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none font-bold text-emerald-700">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Faini / Adhabu (kama ipo)</label>
+                        <input type="number" id="repay-penalty-paid" value="0" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none text-rose-600">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Njia ya Malipo *</label>
+                        <select id="repay-method" required class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none bg-white">
+                            <option value="Mixx by Yas">Mixx by Yas</option>
+                            <option value="Cash (Pesa Taslimu)">Cash (Pesa Taslimu)</option>
+                            <option value="M-Pesa">M-Pesa</option>
+                            <option value="Airtel Money">Airtel Money</option>
+                            <option value="HaloPesa">HaloPesa</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Tarehe ya Malipo *</label>
+                        <input type="date" id="repay-date" required class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-slate-100 flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal('modal-add-repayment')" class="px-4 py-2 text-xs text-slate-600 hover:bg-slate-100 rounded-lg">Ghairi</button>
+                    <button type="submit" class="px-5 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-sm">Hifadhi & Toa Risiti</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- PRINT CONTAINER HOLDER FOR DYNAMIC PRINTING -->
+    <div id="printable-area" class="hidden"></div>
+
+    <!-- MODAL 4: PUBLIC ONLINE LOAN APPLICATION PORTAL -->
+    <div id="modal-public-application" class="fixed inset-0 bg-slate-900/80 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[92vh] border border-slate-200">
+            <div class="bg-gradient-to-r from-slate-900 via-sky-900 to-slate-900 px-6 py-4 flex justify-between items-center text-white">
+                <div class="flex items-center space-x-3">
+                    <div class="w-9 h-9 rounded-xl bg-amber-500 text-slate-950 font-black flex items-center justify-center text-sm shadow">MM</div>
+                    <div>
+                        <h3 class="font-bold text-sm tracking-wide">FOMU YA MAOMBI YA MKOPO MTANDAONI</h3>
+                        <p class="text-[11px] text-amber-400">MM MICROFINACE • MKOPO KARIBU YAKO</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeModal('modal-public-application')" class="text-slate-300 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <div id="public-app-success" class="hidden p-8 text-center space-y-4">
+                <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-3xl">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <h4 class="text-lg font-black text-slate-900">Ombi Lako Limepokelewa!</h4>
+                <p class="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
+                    Ahsante kwa kuomba mkopo kupitia <strong>MM MICROFINACE</strong>. Maafisa wetu wa mikopo watakagua taarifa zako na kuwasiliana nawe kupitia namba yako ya simu/WhatsApp muda mfupi ujao.
+                </p>
+                <div class="pt-2">
+                    <button type="button" onclick="resetPublicAppForm()" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-5 py-2.5 rounded-lg">
+                        Tuma Ombi Lingine / Funga
+                    </button>
+                </div>
+            </div>
+
+            <form id="form-public-application" onsubmit="handlePublicLoanSubmit(event)" class="p-6 space-y-4 overflow-y-auto">
+                <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-[11px] text-amber-900 flex items-start space-x-2">
+                    <i class="fa-solid fa-circle-info text-amber-600 mt-0.5"></i>
+                    <span>Jaza taarifa zako kwa usahihi. Kumbuka riba ya mkopo ni <strong>20%</strong> na unahitaji kuwa na kitambulisho halali (NIDA/Mpiga Kura) pamoja na mdhamini.</span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Jina Kamili la Mwombaji *</label>
+                        <input type="text" id="pub-name" required placeholder="Mfano: Juma Hassan Ally" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Namba ya Simu (WhatsApp) *</label>
+                        <input type="text" id="pub-phone" required placeholder="2557XXXXXXXX" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-amber-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Namba ya NIDA / Kura *</label>
+                        <input type="text" id="pub-nida" required placeholder="Namba ya Kitambulisho" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Mtaa / Kijiji *</label>
+                        <input type="text" id="pub-street" required placeholder="Mfano: Majengo" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Wilaya *</label>
+                        <input type="text" id="pub-district" required value="Tandahimba" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-100 pt-3">
+                    <h4 class="text-xs font-bold text-sky-800 uppercase tracking-wider mb-2">Maelezo ya Mkopo Unaohitaji</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Aina ya Mkopo *</label>
+                            <select id="pub-category" required class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none bg-white">
+                                <option value="Mkopo wa Biashara Ndogo">Mkopo wa Biashara Ndogo</option>
+                                <option value="Mkopo wa Dharura">Mkopo wa Dharura</option>
+                                <option value="Mkopo wa Kilimo">Mkopo wa Kilimo</option>
+                                <option value="Mkopo wa Ada">Mkopo wa Ada</option>
+                                <option value="Mkopo Binafsi">Mkopo Binafsi</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Kiasi Unachoomba (Tsh) *</label>
+                            <input type="number" id="pub-amount" min="50000" step="10000" required placeholder="Mfano: 300000" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none font-bold text-slate-900">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Muda wa Marejesho *</label>
+                            <input type="number" id="pub-duration" min="1" value="3" required class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Mzunguko wa Malipo *</label>
+                            <select id="pub-period" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none bg-white">
+                                <option value="MWEZI">Kila Mwezi</option>
+                                <option value="WIKI">Kila Wiki</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Mali ya Dhamana *</label>
+                            <input type="text" id="pub-collateral" required placeholder="Mfano: TV, Pikipiki, Shamba" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-100 pt-3">
+                    <h4 class="text-xs font-bold text-sky-800 uppercase tracking-wider mb-2">Taarifa za Mdhamini Wako</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Jina la Mdhamini *</label>
+                            <input type="text" id="pub-g-name" required placeholder="Jina kamili" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Simu ya Mdhamini *</label>
+                            <input type="text" id="pub-g-phone" required placeholder="2557XXXXXXXX" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Mtaa wa Mdhamini *</label>
+                            <input type="text" id="pub-g-street" required placeholder="Mtaa anapoishi" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-slate-100 flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal('modal-public-application')" class="px-4 py-2 text-xs text-slate-600 hover:bg-slate-100 rounded-lg">Ghairi</button>
+                    <button type="submit" class="px-6 py-2.5 text-xs font-black text-slate-950 bg-amber-500 hover:bg-amber-400 rounded-lg shadow flex items-center space-x-2">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span>TUMA OMBI LA MKOPO SASA</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 5: PRINTABLE RECEIPT MODAL -->
+    <div id="modal-receipt-view" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden no-print">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col">
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <h3 class="font-bold text-slate-800 text-sm">Hakiki Risiti ya Malipo</h3>
+                <button type="button" onclick="closeModal('modal-receipt-view')" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div id="receipt-modal-content" class="p-6 bg-white overflow-y-auto max-h-[70vh]">
+                <!-- Dynamic receipt rendered here -->
+            </div>
+            <div class="px-6 py-3 border-t border-slate-100 bg-slate-50 flex justify-between items-center">
+                <button type="button" onclick="closeModal('modal-receipt-view')" class="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-200 rounded-lg">Funga</button>
+                <button type="button" onclick="printCurrentReceipt()" class="px-4 py-2 text-xs font-semibold bg-emerald-600 text-white hover:bg-emerald-700 rounded-lg flex items-center space-x-1.5 shadow-sm">
+                    <i class="fa-solid fa-print"></i>
+                    <span>Chapa Risiti (Print)</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        const AUTH_USER = "Kennymhaiki";
+        const AUTH_PASS = "Mhaiki@2022";
+
+        let companyConfig = {};
+        let clients = [];
+        let loans = [];
+        let repayments = [];
+        let onlineApplications = [];
+        let activeReceiptData = null;
+
+        const DEFAULT_COMPANY = {
+            name: 'MM MICROFINACE',
+            district: 'Tandahimba',
+            address: 'Mtaa wa Amani, Tandahimba',
+            email: 'kennethmhaiki8@gmail.com',
+            lender: 'Mwanaharusi Said Mzee',
+            witness: 'Kenneth Mhaiki',
+            phone: '0627583847 / 0628007659',
+            defaultRate: 20,
+            penaltyRate: 5
+        };
+
+        const DEFAULT_CLIENTS = [
+            {
+                id: 'CL-101',
+                name: 'Lagatoni Mwampamba',
+                phone: '255754123456',
+                nida: '19880412-11101-00001-12',
+                street: 'Majengo',
+                district: 'Tandahimba',
+                collateral: 'Pikipiki Boxer MC-390',
+                guarantorName: 'Juma Mwampamba',
+                guarantorPhone: '255712987654',
+                guarantorStreet: 'Majengo',
+                guarantorDistrict: 'Tandahimba'
+            },
+            {
+                id: 'CL-102',
+                name: 'Amina Salum Said',
+                phone: '255715998877',
+                nida: '19920915-22102-00003-45',
+                street: 'Miembeni',
+                district: 'Tandahimba',
+                collateral: 'Shamba la Korosho Hekari 2',
+                guarantorName: 'Salum Said Mzee',
+                guarantorPhone: '255784332211',
+                guarantorStreet: 'Miembeni',
+                guarantorDistrict: 'Tandahimba'
+            }
+        ];
+
+        const DEFAULT_LOANS = [
+            {
+                id: 'MHK-LN-2026-01',
+                clientId: 'CL-101',
+                clientName: 'Lagatoni Mwampamba',
+                category: 'Mkopo wa Biashara Ndogo',
+                amount: 1000000,
+                interestRate: 20,
+                duration: 3,
+                periodType: 'MWEZI',
+                calcMode: 'FLAT',
+                startDate: '2026-01-10',
+                endDate: '2026-04-10',
+                interestAmount: 200000,
+                totalDue: 1200000,
+                paidAmount: 400000,
+                paidPrincipal: 333333,
+                paidInterest: 66667,
+                balance: 800000,
+                status: 'ACTIVE',
+                penaltyPercent: 5,
+                schedule: [
+                    { installment: 1, dueDate: '2026-02-10', principal: 333333, interest: 66667, total: 400000 },
+                    { installment: 2, dueDate: '2026-03-10', principal: 333333, interest: 66667, total: 400000 },
+                    { installment: 3, dueDate: '2026-04-10', principal: 333334, interest: 66666, total: 400000 }
+                ]
+            }
+        ];
+
+        const DEFAULT_REPAYMENTS = [
+            {
+                id: 'RP-801',
+                loanId: 'MHK-LN-2026-01',
+                clientName: 'Lagatoni Mwampamba',
+                amount: 400000,
+                principalPaid: 333333,
+                interestPaid: 66667,
+                penaltyPaid: 0,
+                method: 'Mixx by Yas',
+                date: '2026-02-10',
+                reference: 'MIX-984210',
+                remainingBalance: 800000
+            }
+        ];
+
+        const DEFAULT_ONLINE_APPS = [
+            {
+                id: 'ONL-501',
+                date: new Date().toISOString().split('T')[0],
+                name: 'Fatuma Rashid Hamisi',
+                phone: '255765443322',
+                nida: '19950614-33105-00012-19',
+                street: 'Sokoni',
+                district: 'Tandahimba',
+                category: 'Mkopo wa Biashara Ndogo',
+                amount: 300000,
+                duration: 3,
+                periodType: 'MWEZI',
+                collateral: 'Simu Smartphone & Kabati',
+                guarantorName: 'Rashid Hamisi',
+                guarantorPhone: '255713556677',
+                guarantorStreet: 'Sokoni',
+                status: 'PENDING'
+            }
+        ];
+
+        function showToast(message) {
+            const toast = document.getElementById('toast-notification');
+            const msgEl = document.getElementById('toast-message');
+            if (!toast || !msgEl) return;
+            msgEl.textContent = message;
+            toast.classList.remove('hidden');
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3500);
+        }
+
+        function startDashboardColorCycle() {
+            const dashboardThemes = [
+                {
+                    bg: 'bg-sky-50/80',
+                    banner: 'from-slate-900 via-sky-900 to-slate-900',
+                    contact: 'bg-sky-100/70 border-sky-300',
+                    loginScreenBg: 'bg-slate-900',
+                    topBanner: 'from-amber-500 via-amber-400 to-amber-500 text-slate-950'
+                },
+                {
+                    bg: 'bg-emerald-50/80',
+                    banner: 'from-emerald-950 via-teal-900 to-slate-900',
+                    contact: 'bg-emerald-100/70 border-emerald-300',
+                    loginScreenBg: 'bg-emerald-950',
+                    topBanner: 'from-emerald-400 via-teal-300 to-emerald-400 text-slate-950'
+                },
+                {
+                    bg: 'bg-amber-50/80',
+                    banner: 'from-slate-900 via-amber-900 to-slate-900',
+                    contact: 'bg-amber-100/70 border-amber-300',
+                    loginScreenBg: 'bg-amber-950',
+                    topBanner: 'from-sky-400 via-cyan-300 to-sky-400 text-slate-950'
+                },
+                {
+                    bg: 'bg-indigo-50/80',
+                    banner: 'from-indigo-950 via-purple-900 to-slate-900',
+                    contact: 'bg-indigo-100/70 border-indigo-300',
+                    loginScreenBg: 'bg-indigo-950',
+                    topBanner: 'from-amber-400 via-yellow-300 to-amber-400 text-slate-950'
+                },
+                {
+                    bg: 'bg-rose-50/70',
+                    banner: 'from-slate-900 via-rose-950 to-slate-900',
+                    contact: 'bg-rose-100/70 border-rose-300',
+                    loginScreenBg: 'bg-rose-950',
+                    topBanner: 'from-rose-400 via-pink-300 to-rose-400 text-slate-950'
+                }
+            ];
+
+            let currentIndex = 0;
+            setInterval(() => {
+                const dashEl = document.getElementById('view-dashboard');
+                const bannerEl = document.getElementById('dash-promo-banner');
+                const contactEl = document.getElementById('dash-contact-marquee-box');
+
+                const loginScreenEl = document.getElementById('login-screen');
+                const loginHeaderEl = document.getElementById('login-header-banner');
+                const loginContactEl = document.getElementById('login-contact-box');
+                const topBannerEl = document.getElementById('public-online-banner');
+
+                const prevTheme = dashboardThemes[currentIndex];
+                currentIndex = (currentIndex + 1) % dashboardThemes.length;
+                const nextTheme = dashboardThemes[currentIndex];
+
+                if (dashEl && !dashEl.classList.contains('hidden')) {
+                    dashEl.classList.remove(prevTheme.bg);
+                    dashEl.classList.add(nextTheme.bg);
+
+                    if (bannerEl) {
+                        prevTheme.banner.split(' ').forEach(cls => bannerEl.classList.remove(cls));
+                        nextTheme.banner.split(' ').forEach(cls => bannerEl.classList.add(cls));
+                    }
+
+                    if (contactEl) {
+                        prevTheme.contact.split(' ').forEach(cls => contactEl.classList.remove(cls));
+                        nextTheme.contact.split(' ').forEach(cls => contactEl.classList.add(cls));
+                    }
+                }
+
+                if (loginScreenEl && !loginScreenEl.classList.contains('hidden')) {
+                    loginScreenEl.classList.remove(prevTheme.loginScreenBg);
+                    loginScreenEl.classList.add(nextTheme.loginScreenBg);
+
+                    if (loginHeaderEl) {
+                        prevTheme.banner.split(' ').forEach(cls => loginHeaderEl.classList.remove(cls));
+                        nextTheme.banner.split(' ').forEach(cls => loginHeaderEl.classList.add(cls));
+                    }
+
+                    if (loginContactEl) {
+                        prevTheme.contact.split(' ').forEach(cls => loginContactEl.classList.remove(cls));
+                        nextTheme.contact.split(' ').forEach(cls => loginContactEl.classList.add(cls));
+                    }
+
+                    if (topBannerEl) {
+                        prevTheme.topBanner.split(' ').forEach(cls => topBannerEl.classList.remove(cls));
+                        nextTheme.topBanner.split(' ').forEach(cls => topBannerEl.classList.add(cls));
+                    }
+                }
+            }, 2000);
+        }
+
+        function checkAuthSession() {
+            const loggedIn = sessionStorage.getItem('mhaiki_auth');
+            if (loggedIn === 'true') {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('app-container').classList.remove('hidden');
+                document.getElementById('public-online-banner').classList.add('hidden');
+            } else {
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('app-container').classList.add('hidden');
+                document.getElementById('public-online-banner').classList.remove('hidden');
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('login-username').value.trim();
+            const p = document.getElementById('login-password').value.trim();
+
+            if (u === AUTH_USER && p === AUTH_PASS) {
+                sessionStorage.setItem('mhaiki_auth', 'true');
+                document.getElementById('login-error').classList.add('hidden');
+                checkAuthSession();
+                switchTab('dashboard');
+                showToast('Karibu tena, Kennymhaiki!');
+            } else {
+                document.getElementById('login-error').classList.remove('hidden');
+            }
+        }
+
+        function handleLogout() {
+            sessionStorage.removeItem('mhaiki_auth');
+            checkAuthSession();
+            showToast('Umetoka kwenye mfumo kwa usalama.');
+        }
+
+        function loadLocalStorageData() {
+            try {
+                companyConfig = JSON.parse(localStorage.getItem('mhaiki_company')) || { ...DEFAULT_COMPANY };
+                if (companyConfig.name && companyConfig.name.toUpperCase().includes('MHAIKI')) {
+                    companyConfig.name = 'MM MICROFINACE';
+                }
+                clients = JSON.parse(localStorage.getItem('mhaiki_clients')) || [...DEFAULT_CLIENTS];
+                loans = JSON.parse(localStorage.getItem('mhaiki_loans')) || [...DEFAULT_LOANS];
+                repayments = JSON.parse(localStorage.getItem('mhaiki_repayments')) || [...DEFAULT_REPAYMENTS];
+                onlineApplications = JSON.parse(localStorage.getItem('mhaiki_online_apps')) || [...DEFAULT_ONLINE_APPS];
+                saveLocalStorageData();
+            } catch (err) {
+                companyConfig = { ...DEFAULT_COMPANY };
+                clients = [...DEFAULT_CLIENTS];
+                loans = [...DEFAULT_LOANS];
+                repayments = [...DEFAULT_REPAYMENTS];
+                onlineApplications = [...DEFAULT_ONLINE_APPS];
+                saveLocalStorageData();
+            }
+        }
+
+        function saveLocalStorageData() {
+            localStorage.setItem('mhaiki_company', JSON.stringify(companyConfig));
+            localStorage.setItem('mhaiki_clients', JSON.stringify(clients));
+            localStorage.setItem('mhaiki_loans', JSON.stringify(loans));
+            localStorage.setItem('mhaiki_repayments', JSON.stringify(repayments));
+            localStorage.setItem('mhaiki_online_apps', JSON.stringify(onlineApplications));
+            refreshAllUI();
+        }
+
+        function refreshAllUI() {
+            renderCompanySettingsForm();
+            renderDashboard();
+            renderClientsTable();
+            renderOnlineApplicationsTable();
+            renderLoansTable();
+            renderSchedulesTable('WEEK');
+            renderRepaymentsTable();
+            renderAnalytics();
+            populateClientDropdowns();
+            populateLoanDropdowns();
+            populateMessagingSelect();
+        }
+
+        function openPublicApplicationModal() {
+            document.getElementById('public-app-success').classList.add('hidden');
+            document.getElementById('form-public-application').classList.remove('hidden');
+            openModal('modal-public-application');
+        }
+
+        function resetPublicAppForm() {
+            document.getElementById('form-public-application').reset();
+            document.getElementById('public-app-success').classList.add('hidden');
+            document.getElementById('form-public-application').classList.remove('hidden');
+            closeModal('modal-public-application');
+        }
+
+        function handlePublicLoanSubmit(e) {
+            e.preventDefault();
+            const newApp = {
+                id: 'ONL-' + Math.floor(100 + Math.random() * 900),
+                date: new Date().toISOString().split('T')[0],
+                name: document.getElementById('pub-name').value.trim(),
+                phone: document.getElementById('pub-phone').value.trim(),
+                nida: document.getElementById('pub-nida').value.trim(),
+                street: document.getElementById('pub-street').value.trim(),
+                district: document.getElementById('pub-district').value.trim(),
+                category: document.getElementById('pub-category').value,
+                amount: parseFloat(document.getElementById('pub-amount').value),
+                duration: parseInt(document.getElementById('pub-duration').value),
+                periodType: document.getElementById('pub-period').value,
+                collateral: document.getElementById('pub-collateral').value.trim(),
+                guarantorName: document.getElementById('pub-g-name').value.trim(),
+                guarantorPhone: document.getElementById('pub-g-phone').value.trim(),
+                guarantorStreet: document.getElementById('pub-g-street').value.trim(),
+                status: 'PENDING'
+            };
+
+            onlineApplications.unshift(newApp);
+            saveLocalStorageData();
+
+            document.getElementById('form-public-application').classList.add('hidden');
+            document.getElementById('public-app-success').classList.remove('hidden');
+        }
+
+        function renderOnlineApplicationsTable() {
+            const tbody = document.getElementById('online-requests-tbody');
+            const badge = document.getElementById('nav-online-badge');
+            const dashCount = document.getElementById('dash-online-count');
+
+            const pendingCount = onlineApplications.filter(a => a.status === 'PENDING').length;
+            if (dashCount) dashCount.innerText = pendingCount;
+            if (badge) {
+                badge.innerText = pendingCount;
+                if (pendingCount > 0) badge.classList.remove('hidden');
+                else badge.classList.add('hidden');
+            }
+
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            if (onlineApplications.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">Hakuna maombi ya mikopo yaliyotumwa mtandaoni bado.</td></tr>`;
+                return;
+            }
+
+            onlineApplications.forEach(app => {
+                let statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">INASUBIRI (PENDING)</span>`;
+                if (app.status === 'APPROVED') {
+                    statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">IMEIDHINISHWA</span>`;
+                } else if (app.status === 'REJECTED') {
+                    statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800">IMEKATALIWA</span>`;
+                }
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-4 font-mono">
+                            <div class="font-bold text-sky-700">${app.id}</div>
+                            <div class="text-[11px] text-slate-400">${app.date}</div>
+                        </td>
+                        <td class="p-4">
+                            <div class="font-bold text-slate-900">${app.name}</div>
+                            <div class="text-[11px] font-mono text-emerald-700 font-semibold">${app.phone}</div>
+                        </td>
+                        <td class="p-4">
+                            <div class="text-slate-700">${app.street}, ${app.district}</div>
+                            <div class="text-[11px] font-mono text-slate-400">NIDA: ${app.nida}</div>
+                        </td>
+                        <td class="p-4">
+                            <div class="font-black text-slate-900">${formatMoney(app.amount)}</div>
+                            <div class="text-[11px] text-slate-500">${app.category} (${app.duration} ${app.periodType})</div>
+                        </td>
+                        <td class="p-4">
+                            <div class="text-amber-700 font-medium">${app.collateral}</div>
+                            <div class="text-[11px] text-slate-500">Mdhamini: ${app.guarantorName} (${app.guarantorPhone})</div>
+                        </td>
+                        <td class="p-4">${statusBadge}</td>
+                        <td class="p-4 text-right">
+                            <div class="flex items-center justify-end gap-1.5 flex-wrap">
+                                ${app.status === 'PENDING' ? `
+                                    <button type="button" onclick="approveOnlineApplication('${app.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold px-2.5 py-1.5 rounded shadow-xs flex items-center space-x-1">
+                                        <i class="fa-solid fa-check"></i>
+                                        <span>Idhinisha</span>
+                                    </button>
+                                    <button type="button" onclick="rejectOnlineApplication('${app.id}')" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-[11px] font-bold px-2.5 py-1.5 rounded">
+                                        Kataa
+                                    </button>
+                                ` : `
+                                    <a href="https://wa.me/${app.phone}?text=${encodeURIComponent('Habari ' + app.name + ', ombi lako la mkopo (' + app.id + ') katika MM MICROFINACE limefanyiwa kazi.')}" target="_blank" rel="noopener noreferrer" class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold px-2.5 py-1 rounded">
+                                        <i class="fa-brands fa-whatsapp"></i> Wasiliana
+                                    </a>
+                                `}
+                                <button type="button" onclick="deleteOnlineApplication('${app.id}')" class="text-slate-400 hover:text-rose-600 p-1" title="Futa Ombi">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function approveOnlineApplication(appId) {
+            const app = onlineApplications.find(a => a.id === appId);
+            if (!app) return;
+
+            let client = clients.find(c => c.nida === app.nida || c.phone === app.phone);
+            if (!client) {
+                client = {
+                    id: 'CL-' + Math.floor(100 + Math.random() * 900),
+                    name: app.name,
+                    phone: app.phone,
+                    nida: app.nida,
+                    street: app.street,
+                    district: app.district,
+                    collateral: app.collateral,
+                    guarantorName: app.guarantorName,
+                    guarantorPhone: app.guarantorPhone,
+                    guarantorStreet: app.guarantorStreet,
+                    guarantorDistrict: app.district
+                };
+                clients.push(client);
+            }
+
+            const startDate = new Date().toISOString().split('T')[0];
+            const rate = companyConfig.defaultRate || 20;
+            const sched = computeInstallmentSchedule(app.amount, rate, app.duration, 'FLAT', app.periodType, startDate);
+            const endDate = sched.length > 0 ? sched[sched.length - 1].dueDate : startDate;
+
+            let totalInterest = 0;
+            sched.forEach(s => totalInterest += s.interest);
+            const totalDue = app.amount + totalInterest;
+
+            const newLoan = {
+                id: 'MHK-LN-' + new Date().getFullYear() + '-' + Math.floor(100 + Math.random() * 900),
+                clientId: client.id,
+                clientName: client.name,
+                category: app.category,
+                amount: app.amount,
+                interestRate: rate,
+                duration: app.duration,
+                periodType: app.periodType,
+                calcMode: 'FLAT',
+                startDate: startDate,
+                endDate: endDate,
+                interestAmount: totalInterest,
+                totalDue: totalDue,
+                paidAmount: 0,
+                paidPrincipal: 0,
+                paidInterest: 0,
+                balance: totalDue,
+                status: 'ACTIVE',
+                penaltyPercent: companyConfig.penaltyRate,
+                schedule: sched
+            };
+
+            loans.push(newLoan);
+            app.status = 'APPROVED';
+            saveLocalStorageData();
+            showToast(`Ombi limeidhinishwa! Mkopo ${newLoan.id} umetengenezwa kwa ${client.name}.`);
+        }
+
+        function rejectOnlineApplication(appId) {
+            const app = onlineApplications.find(a => a.id === appId);
+            if (!app) return;
+            app.status = 'REJECTED';
+            saveLocalStorageData();
+            showToast(`Ombi la ${app.name} limekataliwa.`);
+        }
+
+        function deleteOnlineApplication(appId) {
+            onlineApplications = onlineApplications.filter(a => a.id !== appId);
+            saveLocalStorageData();
+            showToast('Ombi limefutwa.');
+        }
+
+        function renderCompanySettingsForm() {
+            document.getElementById('setting-company-name').value = companyConfig.name;
+            document.getElementById('setting-district').value = companyConfig.district;
+            document.getElementById('setting-address').value = companyConfig.address || 'Mtaa wa Amani, Tandahimba';
+            document.getElementById('setting-email').value = companyConfig.email || 'kennethmhaiki8@gmail.com';
+            document.getElementById('setting-lender').value = companyConfig.lender;
+            document.getElementById('setting-witness').value = companyConfig.witness;
+            document.getElementById('setting-phone').value = companyConfig.phone;
+            document.getElementById('setting-default-rate').value = companyConfig.defaultRate;
+            document.getElementById('setting-penalty-rate').value = companyConfig.penaltyRate;
+
+            document.getElementById('dash-company-name').innerText = companyConfig.name;
+            document.getElementById('dash-company-address').innerText = companyConfig.address || 'Mtaa wa Amani, Tandahimba';
+            const loginAddrEl = document.getElementById('login-company-address');
+            if (loginAddrEl) loginAddrEl.innerText = companyConfig.address || 'Mtaa wa Amani, Tandahimba';
+            document.getElementById('dash-company-phone').innerText = companyConfig.phone;
+            document.getElementById('dash-company-email').innerText = companyConfig.email || 'kennethmhaiki8@gmail.com';
+            document.getElementById('dash-company-lender').innerText = companyConfig.lender;
+            document.getElementById('dash-company-witness').innerText = companyConfig.witness;
+            document.getElementById('dash-company-penalty').innerText = companyConfig.penaltyRate + '%';
+        }
+
+        function handleSaveCompany(e) {
+            e.preventDefault();
+            companyConfig = {
+                name: document.getElementById('setting-company-name').value.trim(),
+                district: document.getElementById('setting-district').value.trim(),
+                address: document.getElementById('setting-address').value.trim(),
+                email: document.getElementById('setting-email').value.trim(),
+                lender: document.getElementById('setting-lender').value.trim(),
+                witness: document.getElementById('setting-witness').value.trim(),
+                phone: document.getElementById('setting-phone').value.trim(),
+                defaultRate: parseFloat(document.getElementById('setting-default-rate').value) || 20,
+                penaltyRate: parseFloat(document.getElementById('setting-penalty-rate').value) || 5
+            };
+            saveLocalStorageData();
+            showToast('Taarifa za kampuni zimehifadhiwa vyema!');
+        }
+
+        function renderDashboard() {
+            let totalP = 0, totalI = 0, totalColl = 0, totalBal = 0;
+            loans.forEach(l => {
+                totalP += l.amount;
+                totalI += l.interestAmount;
+                totalColl += l.paidAmount;
+                totalBal += l.balance;
+            });
+
+            document.getElementById('dash-total-principal').innerText = formatMoney(totalP);
+            document.getElementById('dash-total-interest').innerText = formatMoney(totalI);
+            document.getElementById('dash-total-collected').innerText = formatMoney(totalColl);
+            document.getElementById('dash-total-balance').innerText = formatMoney(totalBal);
+
+            const dashTbody = document.getElementById('dash-due-weekly-tbody');
+            dashTbody.innerHTML = '';
+            const activeLoans = loans.filter(l => l.status === 'ACTIVE');
+
+            if (activeLoans.length === 0) {
+                dashTbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">Hakuna mikopo inayodaiwa wiki hii.</td></tr>`;
+                return;
+            }
+
+            activeLoans.slice(0, 5).forEach(l => {
+                const client = clients.find(c => c.id === l.clientId);
+                const nextSched = l.schedule[0] || { dueDate: l.endDate, total: l.balance };
+                dashTbody.innerHTML += `
+                    <tr>
+                        <td class="p-3 font-bold text-slate-900">${l.clientName}</td>
+                        <td class="p-3 font-mono text-rose-600 font-semibold">${nextSched.dueDate}</td>
+                        <td class="p-3 font-bold text-slate-800">${formatMoney(nextSched.total)}</td>
+                        <td class="p-3 font-mono text-slate-600">${client ? client.phone : '-'}</td>
+                        <td class="p-3 text-right">
+                            <button type="button" onclick="openMessagingForLoan('${l.id}')" class="text-[11px] bg-emerald-50 text-emerald-700 font-bold px-2.5 py-1 rounded border border-emerald-200">
+                                WhatsApp
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function prepareNewClientModal() {
+            document.getElementById('form-add-client').reset();
+            document.getElementById('edit-client-id').value = '';
+            document.getElementById('client-district').value = companyConfig.district || 'Tandahimba';
+            document.getElementById('guarantor-district').value = companyConfig.district || 'Tandahimba';
+            document.getElementById('modal-client-title').innerText = 'Usajili wa Mteja Mpya';
+            openModal('modal-add-client');
+        }
+
+        function renderClientsTable() {
+            const tbody = document.getElementById('clients-table-body');
+            const search = document.getElementById('client-search').value.toLowerCase();
+            tbody.innerHTML = '';
+
+            const filtered = clients.filter(c =>
+                c.name.toLowerCase().includes(search) ||
+                c.phone.toLowerCase().includes(search) ||
+                c.nida.toLowerCase().includes(search)
+            );
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">Hakuna mteja aliyepatikana.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(c => {
+                const clientLoans = loans.filter(l => l.clientId === c.id);
+                const clientLoansCount = clientLoans.length;
+                const latestLoan = clientLoans.length > 0 ? clientLoans[clientLoans.length - 1] : null;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-4">
+                            <div class="font-bold text-slate-900 flex items-center gap-1.5">
+                                <span>${c.name}</span>
+                            </div>
+                            <div class="text-[11px] text-slate-400 font-mono">NIDA: ${c.nida}</div>
+                        </td>
+                        <td class="p-4 font-mono font-semibold text-slate-700">${c.phone}</td>
+                        <td class="p-4 text-slate-600">${c.street}, ${c.district}</td>
+                        <td class="p-4 font-medium text-amber-700">${c.collateral}</td>
+                        <td class="p-4">
+                            <div class="font-semibold text-slate-800">${c.guarantorName}</div>
+                            <div class="text-[11px] text-slate-400 font-mono">${c.guarantorPhone}</div>
+                        </td>
+                        <td class="p-4 text-center">
+                            <span class="font-bold text-sky-700 block">${clientLoansCount}</span>
+                        </td>
+                        <td class="p-4 text-right">
+                            <div class="flex items-center justify-end gap-1 flex-wrap">
+                                ${latestLoan ? `
+                                    <button type="button" onclick="openContractForLoan('${latestLoan.id}')" title="Fungua Mkataba wa Mteja" class="text-xs bg-sky-50 text-sky-700 hover:bg-sky-100 px-2 py-1 rounded font-bold border border-sky-200 flex items-center space-x-1">
+                                        <i class="fa-solid fa-file-contract"></i>
+                                        <span>Mkataba</span>
+                                    </button>
+                                    <button type="button" onclick="viewClientReceipts('${c.id}')" title="Tazama Risiti za Mteja" class="text-xs bg-emerald-50 text-emerald-700 hover:bg-emerald-100 px-2 py-1 rounded font-bold border border-emerald-200 flex items-center space-x-1">
+                                        <i class="fa-solid fa-receipt"></i>
+                                        <span>Risiti</span>
+                                    </button>
+                                ` : `
+                                    <span class="text-[10px] text-slate-400 italic">Bila Mkopo</span>
+                                `}
+                                <button type="button" onclick="editClient('${c.id}')" class="text-xs bg-slate-100 text-slate-700 hover:bg-slate-200 px-2 py-1 rounded font-medium border border-slate-300">
+                                    Hariri
+                                </button>
+                                <button type="button" onclick="deleteClient('${c.id}')" class="text-xs bg-rose-50 text-rose-700 hover:bg-rose-100 px-2 py-1 rounded font-medium border border-rose-200">
+                                    Futa
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.view-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.remove('bg-sky-600', 'text-white');
+                el.classList.add('hover:bg-slate-800', 'hover:text-white', 'text-slate-400');
+            });
+
+            const activeView = document.getElementById('view-' + tabId);
+            if (activeView) activeView.classList.remove('hidden');
+
+            const activeNav = document.getElementById('nav-' + tabId);
+            if (activeNav) {
+                activeNav.classList.remove('hover:bg-slate-800', 'hover:text-white', 'text-slate-400');
+                activeNav.classList.add('bg-sky-600', 'text-white');
+            }
+
+            const titles = {
+                'dashboard': 'Dashboard ya Usimamizi',
+                'clients': 'Usajili & Usimamizi wa Wateja',
+                'online-requests': 'Maombi ya Mikopo ya Mtandaoni',
+                'loans': 'Orodha ya Mikopo & Utoaji',
+                'calculator': 'Loan Calculator',
+                'schedules': 'Ratiba za Marejesho ya Wiki / Mwezi',
+                'repayments': 'Marejesho & Risiti Rasmi',
+                'analytics': 'Mchanganuo wa Mtaji & Riba',
+                'messaging': 'Utumaji Ujumbe (WhatsApp / SMS)',
+                'contracts': 'Zana za Mikataba Rasmi ya Tandahimba',
+                'company': 'Kuhariri Taarifa za Kampuni'
+            };
+
+            document.getElementById('page-title').innerText = titles[tabId] || 'Mfumo wa Mikopo';
+
+            if (tabId === 'contracts') {
+                populateContractSelect();
+                renderContractDocument();
+            }
+            if (tabId === 'calculator') {
+                runStandaloneCalculator();
+            }
+        }
+
+        function toggleMobileNav() {
+            const nav = document.getElementById('nav-links');
+            if (nav) nav.classList.toggle('hidden');
+        }
+
+        function formatMoney(amount) {
+            return 'Tsh ' + Number(amount || 0).toLocaleString('sw-TZ');
+        }
+
+        function openReceiptModal(rp, loan) {
+            const receiptObj = typeof rp === 'string' ? repayments.find(r => r.id === rp) : rp;
+            if (!receiptObj) return;
+
+            const targetLoan = loan || loans.find(l => l.id === receiptObj.loanId);
+            activeReceiptData = { rp: receiptObj, loan: targetLoan };
+
+            const content = document.getElementById('receipt-modal-content');
+            content.innerHTML = `
+                <div class="text-center border-b border-dashed border-slate-300 pb-4 mb-4">
+                    <h2 class="font-bold text-base text-slate-900 uppercase tracking-wider">${companyConfig.name}</h2>
+                    <p class="text-[11px] text-slate-500">WILAYA YA ${companyConfig.district.toUpperCase()}, TANZANIA</p>
+                    <p class="text-[11px] text-slate-500 font-medium">STAKABADHI RASMI YA MALIPO</p>
+                    <p class="text-[10px] text-slate-400 font-mono mt-1">Namba ya Risiti: <strong>${receiptObj.id}</strong></p>
+                </div>
+
+                <div class="space-y-2 text-xs text-slate-700 mb-4">
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Tarehe ya Malipo:</span>
+                        <strong class="font-mono">${receiptObj.date}</strong>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Mkopaji:</span>
+                        <strong class="text-slate-900">${receiptObj.clientName}</strong>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Namba ya Mkopo:</span>
+                        <strong class="font-mono text-sky-700">${receiptObj.loanId}</strong>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Njia ya Malipo:</span>
+                        <span class="font-semibold bg-slate-100 px-2 py-0.5 rounded text-slate-800">${receiptObj.method}</span>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 mb-4 space-y-1 text-xs">
+                    <div class="flex justify-between">
+                        <span>Sehemu ya Mtaji:</span>
+                        <strong>${formatMoney(receiptObj.principalPaid)}</strong>
+                    </div>
+                    <div class="flex justify-between text-amber-600">
+                        <span>Sehemu ya Riba:</span>
+                        <strong>${formatMoney(receiptObj.interestPaid)}</strong>
+                    </div>
+                    <div class="flex justify-between font-semibold text-slate-800 border-t border-slate-200 pt-1 mt-1">
+                        <span>Kiasi Kilicholipwa:</span>
+                        <span class="text-emerald-600 text-sm font-bold">${formatMoney(receiptObj.amount)}</span>
+                    </div>
+                    <div class="flex justify-between text-[11px] text-slate-500 border-t border-slate-200/60 pt-1">
+                        <span>Salio Lililobaki la Mkopo:</span>
+                        <strong class="text-amber-600 font-bold">${formatMoney(targetLoan ? targetLoan.balance : receiptObj.remainingBalance)}</strong>
+                    </div>
+                </div>
+
+                <div class="text-center text-[10px] text-slate-400 border-t border-dashed border-slate-300 pt-3">
+                    <p class="font-medium text-slate-600">Ahsante kwa kufanya marejesho kwa wakati!</p>
+                    <p class="mt-0.5">Afisa Aliyehusika: ${companyConfig.witness} | Mkopeshaji: ${companyConfig.lender}</p>
+                </div>
+            `;
+
+            openModal('modal-receipt-view');
+        }
+
+        function printCurrentReceipt() {
+            if (!activeReceiptData) return;
+            const printArea = document.getElementById('printable-area');
+            const receiptHTML = document.getElementById('receipt-modal-content').innerHTML;
+
+            printArea.innerHTML = `<div style="max-width: 400px; margin: 0 auto; font-family: monospace;">${receiptHTML}</div>`;
+            printArea.classList.remove('hidden');
+            window.print();
+            printArea.classList.add('hidden');
+            printArea.innerHTML = '';
+        }
+
+        function printLegalDocument(elementId) {
+            const printArea = document.getElementById('printable-area');
+            const docEl = document.getElementById(elementId);
+            if (!docEl) return;
+
+            printArea.innerHTML = docEl.innerHTML;
+            printArea.classList.remove('hidden');
+            window.print();
+            printArea.classList.add('hidden');
+            printArea.innerHTML = '';
+        }
+
+        function handleSaveClient(e) {
+            e.preventDefault();
+            const editId = document.getElementById('edit-client-id').value;
+
+            const clientData = {
+                id: editId || 'CL-' + Math.floor(100 + Math.random() * 900),
+                name: document.getElementById('client-name').value.trim(),
+                phone: document.getElementById('client-phone').value.trim(),
+                nida: document.getElementById('client-nida').value.trim(),
+                street: document.getElementById('client-street').value.trim(),
+                district: document.getElementById('client-district').value.trim(),
+                collateral: document.getElementById('client-collateral').value.trim(),
+                guarantorName: document.getElementById('guarantor-name').value.trim(),
+                guarantorPhone: document.getElementById('guarantor-phone').value.trim(),
+                guarantorStreet: document.getElementById('guarantor-street').value.trim(),
+                guarantorDistrict: document.getElementById('guarantor-district').value.trim()
+            };
+
+            if (editId) {
+                const index = clients.findIndex(c => c.id === editId);
+                if (index !== -1) clients[index] = clientData;
+                loans.forEach(l => {
+                    if (l.clientId === editId) l.clientName = clientData.name;
+                });
+                repayments.forEach(r => {
+                    const l = loans.find(x => x.id === r.loanId);
+                    if (l && l.clientId === editId) r.clientName = clientData.name;
+                });
+                showToast(`Taarifa za ${clientData.name} zimeboreshwa.`);
+            } else {
+                clients.push(clientData);
+                showToast(`Mteja ${clientData.name} amesajiliwa.`);
+            }
+
+            saveLocalStorageData();
+            document.getElementById('form-add-client').reset();
+            document.getElementById('edit-client-id').value = '';
+            document.getElementById('modal-client-title').innerText = 'Usajili wa Mteja Mpya';
+            closeModal('modal-add-client');
+        }
+
+        function deleteClient(id) {
+            const client = clients.find(c => c.id === id);
+            const clientName = client ? client.name : 'mteja huyu';
+
+            const clientLoanIds = loans.filter(l => l.clientId === id).map(l => l.id);
+            loans = loans.filter(l => l.clientId !== id);
+            repayments = repayments.filter(r => !clientLoanIds.includes(r.loanId));
+            clients = clients.filter(c => c.id !== id);
+
+            saveLocalStorageData();
+            showToast(`Taarifa zote za ${clientName} (Mteja, Mikopo, na Marejesho) zimefutwa.`);
+        }
+
+        function viewClientReceipts(clientId) {
+            const clientLoans = loans.filter(l => l.clientId === clientId).map(l => l.id);
+            const clientRepayments = repayments.filter(r => clientLoans.includes(r.loanId));
+
+            if (clientRepayments.length === 0) {
+                showToast('Mteja huyu bado hana marejesho au risiti iliyorekodiwa.');
+                return;
+            }
+
+            const lastReceipt = clientRepayments[clientRepayments.length - 1];
+            openReceiptModal(lastReceipt.id);
+        }
+
+        function editClient(id) {
+            const c = clients.find(x => x.id === id);
+            if (!c) return;
+
+            document.getElementById('edit-client-id').value = c.id;
+            document.getElementById('modal-client-title').innerText = 'Kuhariri Taarifa za Mteja';
+            document.getElementById('client-name').value = c.name;
+            document.getElementById('client-phone').value = c.phone;
+            document.getElementById('client-nida').value = c.nida;
+            document.getElementById('client-street').value = c.street;
+            document.getElementById('client-district').value = c.district;
+            document.getElementById('client-collateral').value = c.collateral;
+            document.getElementById('guarantor-name').value = c.guarantorName;
+            document.getElementById('guarantor-phone').value = c.guarantorPhone;
+            document.getElementById('guarantor-street').value = c.guarantorStreet;
+            document.getElementById('guarantor-district').value = c.guarantorDistrict;
+
+            openModal('modal-add-client');
+        }
+
+        function getClientPhone(clientId) {
+            const c = clients.find(x => x.id === clientId);
+            return c ? c.phone : '';
+        }
+
+        function renderLoansTable() {
+            const tbody = document.getElementById('loans-table-body');
+            const search = document.getElementById('loan-search').value.toLowerCase();
+            const statusFilter = document.getElementById('loan-filter-status').value;
+
+            tbody.innerHTML = '';
+
+            let filtered = loans.filter(l =>
+                l.clientName.toLowerCase().includes(search) ||
+                l.id.toLowerCase().includes(search) ||
+                l.category.toLowerCase().includes(search)
+            );
+
+            if (statusFilter !== 'ALL') {
+                filtered = filtered.filter(l => l.status === statusFilter);
+            }
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400">Hakuna mikopo iliyopatikana.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(l => {
+                const isCompleted = l.status === 'COMPLETED';
+                const statusBadge = isCompleted ?
+                    `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">IMEKUSANYWA (COMPLETED)</span>` :
+                    `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">INAYOENDELEA (ACTIVE)</span>`;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-4 font-mono font-bold text-sky-700">${l.id}</td>
+                        <td class="p-4 font-bold text-slate-900">${l.clientName}</td>
+                        <td class="p-4 text-slate-600">${l.category}</td>
+                        <td class="p-4">
+                            <div class="font-bold text-slate-900">${formatMoney(l.amount)}</div>
+                            <div class="text-[11px] text-amber-600 font-semibold">+ Riba (${l.interestRate}%): ${formatMoney(l.interestAmount)}</div>
+                        </td>
+                        <td class="p-4 font-mono text-[11px]">
+                            <div class="text-slate-700 font-medium">${l.startDate}</div>
+                            <div class="text-slate-400">hadi ${l.endDate}</div>
+                        </td>
+                        <td class="p-4 font-bold ${l.balance > 0 ? 'text-rose-600' : 'text-emerald-600'}">
+                            ${formatMoney(l.balance)}
+                        </td>
+                        <td class="p-4">${statusBadge}</td>
+                        <td class="p-4 text-right">
+                            <div class="flex items-center justify-end space-x-1">
+                                <button type="button" onclick="openContractForLoan('${l.id}')" class="text-xs bg-sky-50 text-sky-700 hover:bg-sky-100 px-2 py-1 rounded font-bold border border-sky-200">
+                                    Mkataba
+                                </button>
+                                <button type="button" onclick="deleteLoan('${l.id}')" class="text-xs bg-rose-50 text-rose-700 hover:bg-rose-100 px-2 py-1 rounded font-bold border border-rose-200">
+                                    Futa
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function calculateFormSchedulePreview() {
+            const amount = parseFloat(document.getElementById('loan-amount').value) || 0;
+            const rate = parseFloat(document.getElementById('loan-interest').value) || 0;
+            const duration = parseInt(document.getElementById('loan-duration').value) || 1;
+            const mode = document.getElementById('loan-calc-mode').value;
+            const period = document.getElementById('loan-period-type').value;
+            const startDateStr = document.getElementById('loan-start-date').value || new Date().toISOString().split('T')[0];
+
+            const tbody = document.getElementById('loan-form-schedule-tbody');
+            tbody.innerHTML = '';
+
+            if (amount <= 0 || duration <= 0) return;
+
+            const sched = computeInstallmentSchedule(amount, rate, duration, mode, period, startDateStr);
+            const endDate = sched.length > 0 ? sched[sched.length - 1].dueDate : '-';
+
+            document.getElementById('loan-form-end-date').innerText = `Kuisha: ${endDate}`;
+
+            sched.forEach(item => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="py-1 font-mono">${item.installment}</td>
+                        <td class="py-1 font-mono text-slate-500">${item.dueDate}</td>
+                        <td class="py-1">${formatMoney(item.principal)}</td>
+                        <td class="py-1 text-amber-600">${formatMoney(item.interest)}</td>
+                        <td class="py-1 text-right font-bold text-slate-900">${formatMoney(item.total)}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function computeInstallmentSchedule(amount, rate, duration, mode, period, startDateStr) {
+            const result = [];
+            const startDate = new Date(startDateStr);
+
+            let totalInterest = 0;
+            if (mode === 'FLAT') {
+                totalInterest = amount * (rate / 100);
+            } else {
+                totalInterest = (amount * (rate / 100) * duration) / 2;
+            }
+
+            const totalAmountDue = amount + totalInterest;
+            const installmentTotal = totalAmountDue / duration;
+            const installmentPrincipal = amount / duration;
+            const installmentInterest = totalInterest / duration;
+
+            let currDate = new Date(startDate);
+            for (let i = 1; i <= duration; i++) {
+                if (period === 'WIKI') {
+                    currDate.setDate(currDate.getDate() + 7);
+                } else {
+                    currDate.setMonth(currDate.getMonth() + 1);
+                }
+
+                const formattedDate = currDate.toISOString().split('T')[0];
+                result.push({
+                    installment: i,
+                    dueDate: formattedDate,
+                    principal: Math.round(installmentPrincipal),
+                    interest: Math.round(installmentInterest),
+                    total: Math.round(installmentTotal)
+                });
+            }
+
+            return result;
+        }
+
+        function handleSaveLoan(e) {
+            e.preventDefault();
+            const clientId = document.getElementById('loan-client-id').value;
+            const client = clients.find(c => c.id === clientId);
+
+            if (!client) {
+                showToast('Tafadhali chagua mteja sahihi.');
+                return;
+            }
+
+            const category = document.getElementById('loan-category').value;
+            const amount = parseFloat(document.getElementById('loan-amount').value);
+            const rate = parseFloat(document.getElementById('loan-interest').value);
+            const calcMode = document.getElementById('loan-calc-mode').value;
+            const duration = parseInt(document.getElementById('loan-duration').value);
+            const periodType = document.getElementById('loan-period-type').value;
+            const startDate = document.getElementById('loan-start-date').value;
+
+            const sched = computeInstallmentSchedule(amount, rate, duration, calcMode, periodType, startDate);
+            const endDate = sched.length > 0 ? sched[sched.length - 1].dueDate : startDate;
+
+            let totalInterest = 0;
+            sched.forEach(s => totalInterest += s.interest);
+            const totalDue = amount + totalInterest;
+
+            const newLoan = {
+                id: 'MHK-LN-' + new Date().getFullYear() + '-' + Math.floor(100 + Math.random() * 900),
+                clientId: client.id,
+                clientName: client.name,
+                category: category,
+                amount: amount,
+                interestRate: rate,
+                duration: duration,
+                periodType: periodType,
+                calcMode: calcMode,
+                startDate: startDate,
+                endDate: endDate,
+                interestAmount: totalInterest,
+                totalDue: totalDue,
+                paidAmount: 0,
+                paidPrincipal: 0,
+                paidInterest: 0,
+                balance: totalDue,
+                status: 'ACTIVE',
+                penaltyPercent: companyConfig.penaltyRate,
+                schedule: sched
+            };
+
+            loans.push(newLoan);
+            saveLocalStorageData();
+
+            document.getElementById('form-issue-loan').reset();
+            closeModal('modal-issue-loan');
+            showToast(`Mkopo ${newLoan.id} wa ${client.name} umetolewa vyema!`);
+        }
+
+        function deleteLoan(id) {
+            loans = loans.filter(l => l.id !== id);
+            repayments = repayments.filter(r => r.loanId !== id);
+            saveLocalStorageData();
+            showToast(`Mkopo ${id} na marejesho yake yamefutwa.`);
+        }
+
+        function runStandaloneCalculator() {
+            const amount = parseFloat(document.getElementById('calc-amount').value) || 0;
+            const rate = parseFloat(document.getElementById('calc-rate').value) || 0;
+            const mode = document.getElementById('calc-mode').value;
+            const duration = parseInt(document.getElementById('calc-duration').value) || 1;
+            const period = document.getElementById('calc-period').value;
+            const penaltyPercent = parseFloat(document.getElementById('calc-penalty').value) || 0;
+
+            const sched = computeInstallmentSchedule(amount, rate, duration, mode, period, new Date().toISOString().split('T')[0]);
+
+            let totalInterest = 0;
+            sched.forEach(s => totalInterest += s.interest);
+            const totalDue = amount + totalInterest;
+            const installmentVal = sched.length > 0 ? sched[0].total : 0;
+            const penaltyVal = (totalDue * penaltyPercent) / 100;
+
+            document.getElementById('res-calc-interest').innerText = formatMoney(totalInterest);
+            document.getElementById('res-calc-total').innerText = formatMoney(totalDue);
+            document.getElementById('res-calc-installment').innerText = formatMoney(installmentVal);
+            document.getElementById('res-calc-penalty-val').innerText = formatMoney(penaltyVal);
+
+            const tbody = document.getElementById('calc-schedule-tbody');
+            tbody.innerHTML = '';
+            sched.forEach(s => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="p-2.5 font-mono">${s.installment}</td>
+                        <td class="p-2.5 font-semibold text-slate-700">${formatMoney(s.principal)}</td>
+                        <td class="p-2.5 text-amber-600 font-semibold">${formatMoney(s.interest)}</td>
+                        <td class="p-2.5 text-right font-bold text-slate-900">${formatMoney(s.total)}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function filterScheduleView(mode) {
+            const btnWeek = document.getElementById('btn-sched-week');
+            const btnMonth = document.getElementById('btn-sched-month');
+
+            if (mode === 'WEEK') {
+                btnWeek.className = 'px-3 py-1.5 text-xs font-bold rounded-lg bg-sky-600 text-white';
+                btnMonth.className = 'px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300';
+            } else {
+                btnMonth.className = 'px-3 py-1.5 text-xs font-bold rounded-lg bg-sky-600 text-white';
+                btnWeek.className = 'px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300';
+            }
+            renderSchedulesTable(mode);
+        }
+
+        function renderSchedulesTable(filterMode) {
+            const tbody = document.getElementById('schedules-table-body');
+            tbody.innerHTML = '';
+
+            let activeLoans = loans.filter(l => l.status === 'ACTIVE');
+            if (filterMode === 'WEEK') {
+                activeLoans = activeLoans.filter(l => l.periodType === 'WIKI' || l.schedule.length > 0);
+            } else if (filterMode === 'MONTH') {
+                activeLoans = activeLoans.filter(l => l.periodType === 'MWEZI' || l.schedule.length > 0);
+            }
+
+            if (activeLoans.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Hakuna marejesho yanayodaiwa.</td></tr>`;
+                return;
+            }
+
+            activeLoans.forEach(l => {
+                const client = clients.find(c => c.id === l.clientId);
+                const nextSched = l.schedule[0] || { dueDate: l.endDate, total: l.balance };
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-4 font-mono font-bold text-rose-600">${nextSched.dueDate}</td>
+                        <td class="p-4 font-bold text-slate-900">${l.clientName}</td>
+                        <td class="p-4 font-mono text-slate-700 font-medium">${client ? client.phone : '-'}</td>
+                        <td class="p-4 font-mono text-xs text-sky-700">${l.id}</td>
+                        <td class="p-4 text-right font-bold text-slate-900">${formatMoney(nextSched.total)}</td>
+                        <td class="p-4 text-center">
+                            <button type="button" onclick="openMessagingForLoan('${l.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs flex items-center justify-center space-x-1 mx-auto">
+                                <i class="fa-brands fa-whatsapp"></i>
+                                <span>Tuma WhatsApp</span>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderRepaymentsTable() {
+            const tbody = document.getElementById('repayments-table-body');
+            tbody.innerHTML = '';
+
+            if (repayments.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">Hakuna rekodi za marejesho zilizopatikana.</td></tr>`;
+                return;
+            }
+
+            repayments.slice().reverse().forEach(r => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-4 font-mono text-slate-600">${r.date}</td>
+                        <td class="p-4 font-bold text-slate-900">${r.clientName}</td>
+                        <td class="p-4"><span class="bg-slate-100 font-semibold px-2 py-0.5 rounded text-slate-800">${r.method}</span></td>
+                        <td class="p-4 font-medium text-slate-700">${formatMoney(r.principalPaid)}</td>
+                        <td class="p-4 text-amber-600 font-semibold">${formatMoney(r.interestPaid)}</td>
+                        <td class="p-4 font-bold text-emerald-600">${formatMoney(r.amount)}</td>
+                        <td class="p-4 text-right">
+                            <button type="button" onclick="openReceiptModal('${r.id}')" class="text-xs bg-emerald-50 text-emerald-700 font-bold px-2.5 py-1 rounded border border-emerald-200 hover:bg-emerald-100 flex items-center space-x-1 ml-auto">
+                                <i class="fa-solid fa-receipt"></i>
+                                <span>Risiti</span>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function updateRepaymentCalcDetails() {
+            const loanId = document.getElementById('repay-loan-id').value;
+            const l = loans.find(x => x.id === loanId);
+            const card = document.getElementById('repay-info-card');
+
+            if (!l) {
+                card.classList.add('hidden');
+                return;
+            }
+
+            card.classList.remove('hidden');
+            document.getElementById('repay-client-name').innerText = l.clientName;
+            document.getElementById('repay-balance-due').innerText = formatMoney(l.balance);
+            document.getElementById('repay-amount').value = Math.min(l.balance, l.schedule[0] ? l.schedule[0].total : l.balance);
+        }
+
+        function handleSaveRepayment(e) {
+            e.preventDefault();
+            const loanId = document.getElementById('repay-loan-id').value;
+            const amount = parseFloat(document.getElementById('repay-amount').value);
+            const penaltyPaid = parseFloat(document.getElementById('repay-penalty-paid').value) || 0;
+            const method = document.getElementById('repay-method').value;
+            const date = document.getElementById('repay-date').value;
+
+            const l = loans.find(x => x.id === loanId);
+            if (!l) return;
+
+            const interestRatio = l.totalDue > 0 ? (l.interestAmount / l.totalDue) : 0;
+            const interestPaid = Math.round(amount * interestRatio);
+            const principalPaid = amount - interestPaid;
+
+            l.paidAmount += amount;
+            l.paidPrincipal += principalPaid;
+            l.paidInterest += interestPaid;
+            l.balance = Math.max(0, l.totalDue - l.paidAmount);
+
+            if (l.balance <= 0) {
+                l.status = 'COMPLETED';
+            }
+
+            const newRp = {
+                id: 'RP-' + Math.floor(1000 + Math.random() * 9000),
+                loanId: l.id,
+                clientName: l.clientName,
+                amount: amount,
+                principalPaid: principalPaid,
+                interestPaid: interestPaid,
+                penaltyPaid: penaltyPaid,
+                method: method,
+                date: date,
+                reference: 'TXN-' + Math.floor(100000 + Math.random() * 900000),
+                remainingBalance: l.balance
+            };
+
+            repayments.push(newRp);
+            saveLocalStorageData();
+
+            closeModal('modal-add-repayment');
+            document.getElementById('form-add-repayment').reset();
+            openReceiptModal(newRp, l);
+        }
+
+        function renderAnalytics() {
+            let dTot = 0, dP = 0, dI = 0;
+            let wTot = 0, wP = 0, wI = 0;
+            let mTot = 0, mP = 0, mI = 0;
+            let yTot = 0, yP = 0, yI = 0;
+
+            const now = new Date();
+            const todayStr = now.toISOString().split('T')[0];
+            const currentMonth = now.toISOString().slice(0, 7);
+            const currentYear = String(now.getFullYear());
+            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+            repayments.forEach(r => {
+                const amt = r.amount;
+                const p = r.principalPaid;
+                const i = r.interestPaid;
+
+                if (String(r.date).startsWith(currentYear)) {
+                    yTot += amt; yP += p; yI += i;
+                }
+                if (String(r.date).startsWith(currentMonth)) {
+                    mTot += amt; mP += p; mI += i;
+                }
+                if (r.date >= weekAgo && r.date <= todayStr) {
+                    wTot += amt; wP += p; wI += i;
+                }
+                if (r.date === todayStr) {
+                    dTot += amt; dP += p; dI += i;
+                }
+            });
+
+            document.getElementById('stat-daily-total').innerText = formatMoney(dTot);
+            document.getElementById('stat-daily-p').innerText = formatMoney(dP);
+            document.getElementById('stat-daily-i').innerText = formatMoney(dI);
+
+            document.getElementById('stat-weekly-total').innerText = formatMoney(wTot);
+            document.getElementById('stat-weekly-p').innerText = formatMoney(wP);
+            document.getElementById('stat-weekly-i').innerText = formatMoney(wI);
+
+            document.getElementById('stat-monthly-total').innerText = formatMoney(mTot);
+            document.getElementById('stat-monthly-p').innerText = formatMoney(mP);
+            document.getElementById('stat-monthly-i').innerText = formatMoney(mI);
+
+            document.getElementById('stat-yearly-total').innerText = formatMoney(yTot);
+            document.getElementById('stat-yearly-p').innerText = formatMoney(yP);
+            document.getElementById('stat-yearly-i').innerText = formatMoney(yI);
+        }
+
+        function populateMessagingSelect() {
+            const select = document.getElementById('msg-client-loan-select');
+            select.innerHTML = '';
+
+            loans.forEach(l => {
+                select.innerHTML += `<option value="${l.id}">${l.clientName} - ${l.id} (Salio: ${formatMoney(l.balance)})</option>`;
+            });
+
+            if (loans.length > 0) generateAutomatedMessage();
+        }
+
+        function openMessagingForLoan(loanId) {
+            switchTab('messaging');
+            const select = document.getElementById('msg-client-loan-select');
+            select.value = loanId;
+            generateAutomatedMessage();
+        }
+
+        function generateAutomatedMessage() {
+            const loanId = document.getElementById('msg-client-loan-select').value;
+            const l = loans.find(x => x.id === loanId);
+            if (!l) return;
+
+            const nextSched = l.schedule[0] || { dueDate: l.endDate, total: l.balance };
+
+            const msg = `Habari ${l.clientName},\n\n${companyConfig.name} (Wilaya ya ${companyConfig.district}) inakukumbusha kuhusu mkopo wako namba ${l.id}.\n\n- Mtaji & Riba iliyolipwa: ${formatMoney(l.paidAmount)}\n- Salio Linalodaiwa sasa: ${formatMoney(l.balance)}\n- Tarehe ya Rejesho Linalofuata: ${nextSched.dueDate}\n- Kiasi cha Rejesho: ${formatMoney(nextSched.total)}\n\nTafadhali fanya marejesho kwa wakati kuepuka adhabu ya faini ya ${l.penaltyPercent}%.\nAhsante!`;
+
+            document.getElementById('msg-text-area').value = msg;
+        }
+
+        function sendDirectWhatsApp() {
+            const loanId = document.getElementById('msg-client-loan-select').value;
+            const l = loans.find(x => x.id === loanId);
+            if (!l) return;
+
+            const phone = getClientPhone(l.clientId);
+            const msg = document.getElementById('msg-text-area').value;
+
+            if (!phone) {
+                showToast('Mteja huyu hana namba ya simu.');
+                return;
+            }
+
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
+        }
+
+        function sendDirectSMS() {
+            const loanId = document.getElementById('msg-client-loan-select').value;
+            const l = loans.find(x => x.id === loanId);
+            if (!l) return;
+
+            const phone = getClientPhone(l.clientId);
+            const msg = document.getElementById('msg-text-area').value;
+
+            if (!phone) {
+                showToast('Mteja huyu hana namba ya simu.');
+                return;
+            }
+
+            window.open(`sms:${phone}?body=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
+        }
+
+        function populateContractSelect() {
+            const select = document.getElementById('contract-loan-select');
+            select.innerHTML = '';
+            loans.forEach(l => {
+                select.innerHTML += `<option value="${l.id}">${l.clientName} - ${l.id}</option>`;
+            });
+        }
+
+        function openContractForLoan(loanId) {
+            switchTab('contracts');
+            const select = document.getElementById('contract-loan-select');
+            select.value = loanId;
+            renderContractDocument();
+        }
+
+        function renderContractDocument() {
+            const loanId = document.getElementById('contract-loan-select').value;
+            const container = document.getElementById('printable-contract');
+
+            const l = loans.find(x => x.id === loanId);
+            if (!l) {
+                container.innerHTML = `<p class="text-center text-slate-400 py-8">Tafadhali chagua mkopo ili kuona mkataba.</p>`;
+                return;
+            }
+
+            const c = clients.find(x => x.id === l.clientId) || {};
+
+            container.innerHTML = `
+                <div class="text-center space-y-1 border-b-2 border-slate-900 pb-4 mb-6">
+                    <h1 class="text-base font-black uppercase tracking-widest text-slate-900">WILAYA YA ${companyConfig.district.toUpperCase()}</h1>
+                    <h2 class="text-sm font-bold tracking-wider text-slate-800">${companyConfig.name}</h2>
+                    <h3 class="text-xs font-black uppercase underline decoration-2 underline-offset-4 tracking-wide text-slate-900 mt-2">MKATABA MDOGO WA KUKOPESHA PESA TASLIMU</h3>
+                </div>
+
+                <div class="space-y-4 text-xs leading-relaxed text-slate-900 text-justify">
+                    <p>
+                        Huu ni mkataba baina ya <strong>${companyConfig.lender}</strong> ambaye katika mkataba huu anajulikana kama <strong>mkopeshaji</strong> na <strong>${c.name || '……………………………………………….'}</strong> ambaye katika mkataba huu anajulikana kama <strong>mkopaji</strong> na kwamba pande zote mbili zimekubaliana kukopeshana pesa taslimu <strong>Tsh ${l.amount.toLocaleString()}</strong> kwa makubaliano ya kulipa riba ya <strong>Tsh ${l.interestAmount.toLocaleString()}</strong> kila siku/wiki au kila mwezi na kwamba mkopo huu utakuwa wa miezi/wiki <strong>${l.duration}</strong> kuanzia <strong>${l.startDate}</strong> hadi <strong>${l.endDate}</strong>.
+                    </p>
+                    <p>
+                        Mkopo huu una riba ya asilimia <strong>${l.interestRate}%</strong> ya pesa utakayopewa. Na kwamba pesa iliyokopwa italipwa yote ikiwa na riba ndani ya muda uliokubaliwa au pungufu ya hapo kadri atakavyoona mteja inafaa. Riba iliyokubaliwa itaendelea mpaka pale kiasi chote kitakapolipwa. Endapo mkopaji atachelewesha malipo, kutakuwa na adhabu/faini ya asilimia <strong>${l.penaltyPercent}%</strong>.
+                    </p>
+                    <p>
+                        Na kwamba mteja amekubali kuweka mali yake <strong>${c.collateral || '………………………………'}</strong> kama dhamana ya mkopo wake, na mdhamini wake <strong>${c.guarantorName || '……………………'}</strong> (${c.guarantorPhone || ''}) atawajibika endapo kutatokea changamoto.
+                    </p>
+
+                    <div class="pt-6 grid grid-cols-1 sm:grid-cols-2 gap-8 border-t border-slate-300 mt-4 relative">
+                        <div class="space-y-2">
+                            <div><strong>JINA LA MKOPAJI:</strong> ${c.name || '…………………………………'}</div>
+                            <div><strong>NAMBA YA SIMU:</strong> ${c.phone || '…………………………………'}</div>
+                            <div><strong>MTAA & WILAYA:</strong> ${c.street || '…………'}, ${c.district || companyConfig.district}</div>
+                            <div><strong>SAHIHI:</strong> ………………………… <strong>TAREHE:</strong> ${l.startDate}</div>
+                        </div>
+
+                        <div class="space-y-2 relative">
+                            <div><strong>JINA LA MKOPESHAJI:</strong> ${companyConfig.lender}</div>
+                            <div><strong>SHAHIDI WA MKOPESHAJI:</strong> ${companyConfig.witness}</div>
+                            <div><strong>MDHAMINI:</strong> ${c.guarantorName || '……………………………'}</div>
+                            <div><strong>SAHIHI:</strong> ………………………… <strong>TAREHE:</strong> ${l.startDate}</div>
+                        </div>
+
+                        <!-- CHAPA YA MUHURI WA KAMPUNI -->
+                        <div class="col-span-1 sm:col-span-2 flex justify-center sm:justify-end mt-2 pointer-events-none select-none">
+                            <div class="transform -rotate-12 opacity-90">
+                                <svg width="165" height="165" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="100" cy="100" r="92" fill="none" stroke="#1e3a8a" stroke-width="4"/>
+                                    <circle cx="100" cy="100" r="85" fill="none" stroke="#1e3a8a" stroke-width="1.5" stroke-dasharray="3,2"/>
+                                    <circle cx="100" cy="100" r="56" fill="none" stroke="#1e3a8a" stroke-width="2"/>
+                                    <defs>
+                                        <path id="topArc" d="M 28,100 A 72,72 0 1,1 172,100" />
+                                        <path id="bottomArc" d="M 172,100 A 72,72 0 1,1 28,100" />
+                                    </defs>
+                                    <text fill="#1e3a8a" font-size="13" font-weight="900" letter-spacing="1.5" font-family="Arial, sans-serif">
+                                        <textPath href="#topArc" startOffset="50%" text-anchor="middle">
+                                            ${(companyConfig.name || 'MM MICROFINACE').toUpperCase()}
+                                        </textPath>
+                                    </text>
+                                    <text fill="#1e3a8a" font-size="11" font-weight="800" letter-spacing="1.5" font-family="Arial, sans-serif">
+                                        <textPath href="#bottomArc" startOffset="50%" text-anchor="middle">
+                                            ★ MKOPO KARIBU YAKO ★
+                                        </textPath>
+                                    </text>
+                                    <text x="100" y="88" text-anchor="middle" fill="#1e3a8a" font-size="10" font-weight="800" font-family="Arial, sans-serif">OFFICIAL STAMP</text>
+                                    <line x1="55" y1="95" x2="145" y2="95" stroke="#1e3a8a" stroke-width="1.5"/>
+                                    <text x="100" y="108" text-anchor="middle" fill="#1e3a8a" font-size="10.5" font-weight="900" font-family="monospace">${l.startDate}</text>
+                                    <line x1="55" y1="114" x2="145" y2="114" stroke="#1e3a8a" stroke-width="1.5"/>
+                                    <text x="100" y="127" text-anchor="middle" fill="#1e3a8a" font-size="9.5" font-weight="800" font-family="Arial, sans-serif">${companyConfig.district.toUpperCase()}</text>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function populateClientDropdowns() {
+            const loanClientSel = document.getElementById('loan-client-id');
+            if (loanClientSel) {
+                loanClientSel.innerHTML = '';
+                clients.forEach(c => {
+                    loanClientSel.innerHTML += `<option value="${c.id}">${c.name} (${c.phone})</option>`;
+                });
+            }
+        }
+
+        function populateLoanDropdowns() {
+            const repayLoanSel = document.getElementById('repay-loan-id');
+            if (repayLoanSel) {
+                repayLoanSel.innerHTML = '';
+                const activeLoans = loans.filter(l => l.status === 'ACTIVE');
+                activeLoans.forEach(l => {
+                    repayLoanSel.innerHTML += `<option value="${l.id}">${l.clientName} - ${l.id} (Salio: ${formatMoney(l.balance)})</option>`;
+                });
+                if (activeLoans.length > 0) updateRepaymentCalcDetails();
+            }
+        }
+
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.remove('hidden');
+                if (id === 'modal-issue-loan') {
+                    const startInput = document.getElementById('loan-start-date');
+                    if (startInput && !startInput.value) {
+                        startInput.value = new Date().toISOString().split('T')[0];
+                    }
+                    calculateFormSchedulePreview();
+                }
+                if (id === 'modal-add-repayment') {
+                    const dateInput = document.getElementById('repay-date');
+                    if (dateInput && !dateInput.value) {
+                        dateInput.value = new Date().toISOString().split('T')[0];
+                    }
+                    updateRepaymentCalcDetails();
+                }
+            }
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) modal.classList.add('hidden');
+        }
+
+        window.onload = function () {
+            loadLocalStorageData();
+            checkAuthSession();
+            startDashboardColorCycle();
+            runStandaloneCalculator();
+        };
+    </script>
+</body>
+</html>
